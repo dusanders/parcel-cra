@@ -1,0 +1,8 @@
+{
+  "port": 50001,
+  "database": {
+    "connection": "file://",
+    "secret": "mock_db"
+  },
+  "www": "../client/dist"
+}
