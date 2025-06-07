@@ -1,8 +1,10 @@
 import { User } from '../../shared';
 import './App.css';
+import { useUserContext } from './context/user';
 
 export function App() {
-  let user: User | undefined;
+  const user = useUserContext();
+  console.log(`user: ${JSON.stringify(user.user)}`);
   return (
     <>
       <h1>Parcel React App 2</h1>

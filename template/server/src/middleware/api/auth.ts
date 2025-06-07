@@ -1,12 +1,12 @@
 import { Application, NextFunction, Request, Response } from "express";
 import { AuthenticationService } from "../../services/auth/auth";
 import { IHandleApi } from "../middleware.def";
-import { Api } from "../../../../shared/api";
-import { LoginResponses } from "../../../../shared/responses/login";
 import { User } from "../../../../shared";
 import { BaseApiHandler } from "./base";
-import { LoginRequests } from "../../../../shared/requests/login";
 import { BaseResponse } from "../../../../shared/responses/base";
+import { UserRequests } from "../../../../shared/requests/user";
+import { Api } from "../../../../shared/routes/api";
+import { UserResponses } from "../../../../shared/responses/user";
 
 export class AuthHandler extends BaseApiHandler implements IHandleApi {
   private auth: AuthenticationService;
@@ -18,8 +18,8 @@ export class AuthHandler extends BaseApiHandler implements IHandleApi {
   private validateForRoute(route: string, req: Request, res: Response, next: NextFunction) {
     let valid = false;
     switch (route) {
-      case Api.Auth.login:
-        valid = LoginRequests.Validator.isLoginRequest(req.body);
+      case Api.User.login:
+        valid = UserRequests.Validator.isAuthRequest(req.body);
         break;
     }
     if (valid) {
@@ -36,13 +36,13 @@ export class AuthHandler extends BaseApiHandler implements IHandleApi {
   }
 
   listenForRoutes(express: Application): Application {
-    express.post(Api.Auth.login,
-      (req, res, next) => { this.validateForRoute(Api.Auth.login, req, res, next) },
+    express.post(Api.User.login,
+      (req, res, next) => { this.validateForRoute(Api.User.login, req, res, next) },
       async (req, res, next) => {
         this.sendResponse(res, await this.login(req.body));
       }
     );
-    express.get(Api.Auth.verify,
+    express.get(Api.User.verify,
       (req, res, next) => {
         this.auth.authenticate(req, res, next)
       },
@@ -60,7 +60,7 @@ export class AuthHandler extends BaseApiHandler implements IHandleApi {
     throw new Error("Method not implemented.");
   }
 
-  async login(req: LoginRequests.LoginRequest): Promise<LoginResponses.LoginResponse> {
+  async login(req: UserRequests.Auth): Promise<UserResponses.Auth> {
     let checkModel: User = {
       name: req.name,
       hasAuth: false,
@@ -72,7 +72,7 @@ export class AuthHandler extends BaseApiHandler implements IHandleApi {
         user: checkModel
       };
     }
-    let notallowed: LoginResponses.LoginResponse = {
+    let notallowed: UserResponses.Auth = {
       serverError: {
         httpStatus: 403,
         message: 'not allowed',

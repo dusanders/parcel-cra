@@ -1,10 +1,8 @@
 
 export namespace Api {
-  export enum Auth {
+  export enum User {
+    create = '/api/create',
     login = '/api/login',
     verify = '/api/verify'
-  }
-  export enum User {
-    create = '/api/create'
   }
 }
