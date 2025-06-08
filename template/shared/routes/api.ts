@@ -11,4 +11,8 @@ export namespace Api {
     login = '/api/user/login',
     verify = '/api/user/verify'
   }
+
+  export enum Interop {
+    exec = '/api/interop/exec'
+  }
 }

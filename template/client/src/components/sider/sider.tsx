@@ -15,11 +15,6 @@ const baseOptions: MenuItemType[] = [
     icon: <SettingOutlined />,
     label: 'Settings',
   },
-  {
-    key: 'logout',
-    icon: <LogoutOutlined />,
-    label: 'Logout',
-  },
 ]
 
 export interface SiderProps {

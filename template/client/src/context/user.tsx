@@ -6,19 +6,49 @@ import { ResponseValidator } from "../../../shared/responses/base";
 import { UserResponses } from "../../../shared/responses/user";
 import { User } from "../../../shared/models/user";
 
+/**
+ * Define the logic for the User context
+ */
 export interface IUserContext {
+  /**
+   * Current user model
+   */
   user?: User;
+  /**
+   * Login a user
+   * @param name 
+   * @param secret 
+   */
   login(name: string, secret: string): Promise<boolean>;
+  /**
+   * Logout a user
+   */
   logout(): void;
+  /**
+   * Create a user
+   * @param name 
+   * @param secret 
+   */
   create(name: string, secret: string): Promise<boolean>;
 }
 
+/**
+ * React context instance. Do not use - use the HoC and hook instead.
+ */
 export const UserContext_React = createContext({} as IUserContext);
 
+/**
+ * Define the props
+ */
 export interface UserProviderProps {
   children?: any;
 }
 
+/**
+ * Implement the context
+ * @param props 
+ * @returns 
+ */
 export function UserContext(props: UserProviderProps) {
   const [user, setUser] = useState<User | undefined>(undefined);
   const login = async (name: string, secret: string) => {
@@ -65,6 +95,10 @@ export function UserContext(props: UserProviderProps) {
   )
 }
 
+/**
+ * Convenience hook to use the User context
+ * @returns 
+ */
 export function useUserContext() {
   return useContext(UserContext_React);
 }

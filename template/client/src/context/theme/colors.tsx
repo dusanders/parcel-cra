@@ -1,21 +1,51 @@
 import { Log } from "../logger/logger";
 
+/**
+ * Model the HSL data
+ */
 interface IHslModel {
   h: number;
   s: number;
   l: number;
 }
+
+/**
+ * Model the RGB data
+ */
 interface IRGBModel {
   r: number;
   g: number;
   b: number;
 }
+
+/**
+ * Define the HSL adjustment logic
+ */
 export interface HslColor {
+  /**
+   * Multiply the Luminosity value by `scalar`
+   * @param scalar 
+   */
   adjustLumen(scalar: number): HslColor;
+  /**
+   * Add the `scalar` to the Hue. HSL is degrees of 360.
+   * @param scalar 
+   */
   adjustHue(scalar: number): HslColor;
+  /**
+   * Multiply the Saturation by the `scalar`
+   * @param scalar 
+   */
   adjustSaturation(scalar: number): HslColor;
+  /**
+   * Get the HEX string representation of this color
+   */
   toHex(): string;
 }
+
+/**
+ * Implement the HSL color adjust
+ */
 export class HslColorImpl implements HslColor {
   private tag = 'HslColorImpl';
   private rgb: IRGBModel;

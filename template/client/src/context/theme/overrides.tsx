@@ -2,10 +2,20 @@ import { ConfigProvider, theme } from "antd";
 import { HslColorImpl } from "./colors";
 import { useThemeContext } from "./theme";
 
+/**
+ * Define the props
+ */
 export interface ThemeOverridesProps {
   children?: any;
 }
 
+/**
+ * Override HoC to further customize the Ant Design theme.
+ * 
+ * Uses Ant's calculated base colors, should be placed under an Ant config def.
+ * @param props 
+ * @returns 
+ */
 export function ThemeOverrides(props: ThemeOverridesProps) {
   const themeContext = useThemeContext();
   const { token } = theme.useToken();
@@ -34,7 +44,7 @@ export function ThemeOverrides(props: ThemeOverridesProps) {
           Layout: {
             headerBg: token.colorBgContainer,
             bodyBg: token.colorBgLayout,
-            footerBg: headerFooterBg,
+            footerBg: token.colorBgContainer,
             siderBg: token.colorBgContainer
           }
         }

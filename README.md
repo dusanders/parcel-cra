@@ -17,7 +17,7 @@ The `tsconfig.json` file in both `server` and `client` are setup to accept the `
 
 # Client
 
-Directory containing the Parcel React project.
+Directory containing the Parcel React project. ANT Design is used to provide easier styling and UI components.
 
 # Server
 

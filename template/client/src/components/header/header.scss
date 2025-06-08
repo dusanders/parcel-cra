@@ -5,9 +5,16 @@
   padding: 0rem;
   .title-text {
     flex-grow: 1;
+    margin-bottom: 0rem !important;
+    .header-title-content {
+      flex-grow: 1;
+      justify-content: space-between;
+      align-items: center;
+    }
   }
   .theme-controls-flexbox {
     padding: 0.8rem;
+    align-items: center;
     // flex-grow: 1;
   }
   .color-picker {
