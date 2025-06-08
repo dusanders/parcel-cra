@@ -32,7 +32,7 @@ export function ThemeOverrides(props: ThemeOverridesProps) {
             darkItemHoverBg: token.colorPrimaryHover
           },
           Layout: {
-            headerBg: headerFooterBg,
+            headerBg: token.colorBgContainer,
             bodyBg: token.colorBgLayout,
             footerBg: headerFooterBg,
             siderBg: token.colorBgContainer

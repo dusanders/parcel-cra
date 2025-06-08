@@ -12,6 +12,7 @@ export interface BasePageProps {
   label?: React.ReactElement;
   withSlider?: boolean;
   sliderOptions?: MenuItemType[];
+  onSiderOptionSelected?: (option: MenuItemType) => void;
   children?: any;
 }
 export function BasePage(props: BasePageProps) {

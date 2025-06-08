@@ -8,7 +8,8 @@ export interface DashboardProps { }
 
 export function Dashboard(props: DashboardProps) {
   return (
-    <BasePage withSlider
+    <BasePage
+      withSlider
       label={(
         <Logo />
       )}>
