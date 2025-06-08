@@ -24,13 +24,13 @@ class Main {
 
     const database = await JsonDatabase.fromFile(configuration.database.secret);
     const jwtService = new JWTService();
-    const authMiddleware = new AuthenticationService(jwtService);
+    const authService = new AuthenticationService(jwtService);
 
     this.server = await Server.fromConfiguration(configuration)
       .addMiddleware(new CorsMiddleware())
       .addMiddleware(new JsonMiddleware())
-      .addApiHandler(new AuthHandler(authMiddleware))
-      .addApiHandler(new UserHandler(database))
+      .addApiHandler(new AuthHandler(authService))
+      .addApiHandler(new UserHandler(database, authService))
       .addMiddleware(new StaticMiddleware(configuration.www))
       .start();
   }

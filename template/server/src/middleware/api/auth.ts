@@ -1,12 +1,12 @@
 import { Application, NextFunction, Request, Response } from "express";
 import { AuthenticationService } from "../../services/auth/auth";
 import { IHandleApi } from "../middleware.def";
-import { User } from "../../../../shared";
 import { BaseApiHandler } from "./base";
 import { UserRequests } from "../../../../shared/requests/user";
 import { Api } from "../../../../shared/routes/api";
 import { UserResponses } from "../../../../shared/responses/user";
 import { ServerError } from "../../../../shared/responses/base";
+import { User } from "../../../../shared/models/user";
 
 /**
  * Authentication API handler. Handles /api/user/auth (login) requests as well.

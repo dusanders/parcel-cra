@@ -1,10 +1,10 @@
 import { createContext, useContext, useState } from "react";
-import { User } from "../../../shared";
-import { AxiosUtils } from "../services/axios";
+import { ApiService } from "../services/api";
 import { Api } from "../../../shared/routes/api";
 import { UserRequests } from "../../../shared/requests/user";
 import { ResponseValidator } from "../../../shared/responses/base";
 import { UserResponses } from "../../../shared/responses/user";
+import { User } from "../../../shared/models/user";
 
 export interface IUserContext {
   user?: User;
@@ -25,8 +25,8 @@ export function UserContext(props: UserProviderProps) {
       name: name,
       secret: secret
     }
-    const response = await AxiosUtils
-      .withDefaultAxios()
+    const response = await ApiService.getInstance()
+      .notAuthenticated()
       .postTo(Api.User.login)
       .withBody<UserResponses.Auth>(request);
     if (ResponseValidator.isError(response)) {
@@ -40,8 +40,8 @@ export function UserContext(props: UserProviderProps) {
       name: name,
       secret: secret
     }
-    const response = await AxiosUtils
-      .withDefaultAxios()
+    const response = await ApiService.getInstance()
+      .notAuthenticated()
       .postTo(Api.User.create)
       .withBody<UserResponses.Create>(request);
     if (ResponseValidator.isError(response)) {

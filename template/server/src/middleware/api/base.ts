@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { ResponseValidator } from "../../../../shared/responses/base";
+import { ResponseValidator, ServerError } from "../../../../shared/responses/base";
 
 /**
  * Base API Handler. Implements shared logic.
@@ -26,5 +26,22 @@ export class BaseApiHandler {
     res.status(200);
     res.send(model);
     res.end();
+  }
+  /**
+   * Convenience method to enforce server error contract
+   * @param error 
+   * @returns 
+   */
+  returnError(error: ServerError) {
+    return error;
+  }
+  /**
+   * Convenience method to send an error message.
+   * Mainly used to enforce types on the error object.
+   * @param res 
+   * @param error 
+   */
+  sendError(res: Response, error: ServerError) {
+    this.sendResponse(res, error);
   }
 }

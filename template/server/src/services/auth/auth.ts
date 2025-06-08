@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { User } from "../../../../shared";
+import { User } from "../../../../shared/models/user";
 import { Log } from "../logger/logger";
 import { IJwtService } from "./jwt/jwt.def";
 

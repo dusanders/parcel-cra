@@ -1,4 +1,4 @@
-import { User } from "../../../../../shared";
+import { User } from "../../../../../shared/models/user";
 
 /**
  * Define the contract for the JWT auth service

@@ -1,4 +1,4 @@
-import { User } from "../..";
+import { User } from "../../models/user";
 
 /**
  * Namespace to hold all /api/user responses
