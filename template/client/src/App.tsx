@@ -1,8 +1,7 @@
-import { Layout } from 'antd';
+import { Card, Layout } from 'antd';
 import './App.scss';
 import { useUserContext } from './context/user';
 import { Header } from './components/header/header';
-import { LandingPrompt } from './components/landingPrompt/landingPrompt';
 import { Login } from './pages/login/login';
 import { Footer } from './components/footer/footer';
 
@@ -14,8 +13,9 @@ export function App() {
     <Layout className='main-layout'>
       <Header />
       <Layout.Content className='main-content'>
-        <LandingPrompt />
-        <Login />
+        {!user.user && (
+          <Login />
+        )}
       </Layout.Content>
       <Footer />
     </Layout>

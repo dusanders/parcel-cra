@@ -12,7 +12,7 @@ export function Footer(props: FooterProps) {
         <p>Template by
           <span>
             <Typography.Link type={'secondary'}
-              href='https://dusanders.github.com'
+              href='https://dusanders.github.io'
               target='about:blank'>
               dusanders
             </Typography.Link>
