@@ -9,6 +9,7 @@ import { User } from "../../../shared/models/user";
 export interface IUserContext {
   user?: User;
   login(name: string, secret: string): Promise<boolean>;
+  logout(): void;
   create(name: string, secret: string): Promise<boolean>;
 }
 
@@ -54,6 +55,9 @@ export function UserContext(props: UserProviderProps) {
     <UserContext_React.Provider value={{
       user: user,
       login: (name, secret) => login(name, secret),
+      logout: () => {
+        setUser(undefined)
+      },
       create: (name, secret) => create(name, secret)
     }}>
       {props.children}

@@ -11,17 +11,13 @@ export function App() {
   console.log(`user: ${JSON.stringify(user.user)}`);
 
   return (
-    <Layout className='main-layout'>
-      <Header />
-      <Layout.Content className='main-content'>
-        {!user.user && (
-          <Login />
-        )}
-        {user.user && user.user.hasAuth && (
-          <Dashboard />
-        )}
-      </Layout.Content>
-      <Footer />
-    </Layout>
+    <>
+      {!user.user && (
+        <Login />
+      )}
+      {user.user && user.user.hasAuth && (
+        <Dashboard />
+      )}
+    </>
   );
 }

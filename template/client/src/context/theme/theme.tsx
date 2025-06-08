@@ -49,7 +49,7 @@ export function ThemeContext(props: ThemeContextProps) {
       <ConfigProvider
         theme={{
           token: {
-            colorPrimary: current
+            colorPrimary: current,
           },
           algorithm: isDarkTheme ? theme.darkAlgorithm : theme.defaultAlgorithm
         }}>

@@ -8,6 +8,8 @@ html body{
   // background-color: #fff;
 }
 .ant-app {
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
 }
 .app-root {

@@ -1,0 +1,38 @@
+
+.basePage-root {
+  flex-grow: 1;
+  .basePage-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 1rem;
+  }
+  .basePage-footer {
+    position: absolute;
+    bottom: 0rem;
+    left: 0rem;
+    right: 0rem;
+    z-index: 99;
+  }
+  .basePage-side-button-parent {
+    &.expanded {
+      display: flex;
+    }
+    .basePage-side-button-label {
+      display: none;
+      &.expanded {
+        display: flex;
+        flex-grow: 1;
+        padding: 1rem;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+    .basePage-side-button {
+      width: 100% !important;
+      &.expanded {
+        width: 40% !important;
+      }
+    }
+  }
+}

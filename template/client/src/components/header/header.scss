@@ -1,7 +1,14 @@
 
-.header {
-  .component-flexbox {
+.header-root {
+  width: 100%;
+  display: flex;
+  padding: 0rem;
+  .title-text {
+    flex-grow: 1;
+  }
+  .theme-controls-flexbox {
     padding: 0.8rem;
+    // flex-grow: 1;
   }
   .color-picker {
     height: 2rem;

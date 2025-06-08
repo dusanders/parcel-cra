@@ -2,12 +2,12 @@ import { Anchor, Flex, Layout, Typography } from 'antd';
 import './footer.scss';
 
 export interface FooterProps {
-
+  className?: string;
 }
 
 export function Footer(props: FooterProps) {
   return (
-    <Layout.Footer className='footer-root'>
+    <Layout.Footer className={`footer-root ${props.className || ''}`}>
       <Flex>
         <p>Template by
           <span>

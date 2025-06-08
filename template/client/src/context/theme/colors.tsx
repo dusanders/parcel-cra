@@ -1,33 +1,48 @@
+import { Log } from "../logger/logger";
 
-export function useThemeHelpers(isDarkTheme: boolean, baseColor: string) {
-  const getHsl = () => {
-    const baseRgb = hexToRgb(baseColor);
-    const baseHsl = rgbToHsl(baseRgb.r, baseRgb.g, baseRgb.b);
-    return baseHsl
+interface IHslModel {
+  h: number;
+  s: number;
+  l: number;
+}
+interface IRGBModel {
+  r: number;
+  g: number;
+  b: number;
+}
+export interface HslColor {
+  adjustLumen(scalar: number): HslColor;
+  adjustHue(scalar: number): HslColor;
+  adjustSaturation(scalar: number): HslColor;
+  toHex(): string;
+}
+export class HslColorImpl implements HslColor {
+  private tag = 'HslColorImpl';
+  private rgb: IRGBModel;
+  private hsl: IHslModel;
+  constructor(hex: string) {
+    this.tag += `_${hex}`;
+    this.rgb = hexToRgb(hex);
+    this.hsl = rgbToHsl(this.rgb.r, this.rgb.g, this.rgb.b);
   }
-  
-  const calcHeaderBg = () => {
-    let headerBg = getHsl()
-    if (isDarkTheme) {
-      headerBg.l *= 0.2
-    } else {
-      headerBg.l *= 0.5
-    }
-    return hslToHexSimple(headerBg.h, headerBg.s, headerBg.l);
+  adjustHue(scalar: number): HslColor {
+  const newHue = ((this.hsl.h + scalar) % 360 + 360) % 360;
+  Log.debug(this.tag, `Hue ${this.hsl.h} -> ${newHue}`);
+  this.hsl.h = newHue;
+    return this;
   }
-  const calcContentBg = () => {
-    let contentBg = getHsl();
-    if(isDarkTheme) {
-      contentBg.l *= 0.5;
-    } else {
-      contentBg.l *= 0.8;
-    }
-    contentBg.s *= 0.2;
-    return hslToHexSimple(contentBg.h, contentBg.s, contentBg.l);
+  adjustLumen(scalar: number): HslColor {
+    Log.debug(this.tag, `Lum: ${this.hsl.l} -> ${this.hsl.l * scalar}`)
+    this.hsl.l *= scalar;
+    return this;
   }
-  return {
-    headerBg: calcHeaderBg(),
-    contentBg: calcContentBg()
+  adjustSaturation(scalar: number): HslColor {
+    Log.debug(this.tag, `Sat: ${this.hsl.s} -> ${this.hsl.s * scalar}`);
+    this.hsl.s *= scalar;
+    return this;
+  }
+  toHex(): string {
+    return hslToHexSimple(this.hsl.h, this.hsl.s, this.hsl.l);
   }
 }
 
@@ -36,9 +51,7 @@ export function useThemeHelpers(isDarkTheme: boolean, baseColor: string) {
  * @param hex 
  * @returns 
  */
-function hexToRgb(hex: string): {
-  r: number, g: number, b: number
-} {
+function hexToRgb(hex: string): IRGBModel {
   // Remove the hash if it exists
   hex = hex.replace("#", "");
 
@@ -61,9 +74,7 @@ function hexToRgb(hex: string): {
  * @param b 
  * @returns 
  */
-function rgbToHsl(r: number, g: number, b: number): {
-  h: number, s: number, l: number
-} {
+function rgbToHsl(r: number, g: number, b: number): IHslModel {
   // Normalize RGB values
   r /= 255;
   g /= 255;
@@ -75,7 +86,7 @@ function rgbToHsl(r: number, g: number, b: number): {
 
   let h = 0;
   let s = 0;
-  let l = cmax;
+  let l =  (cmax + cmin) / 2;
 
   if (delta !== 0) {
     // Hue calculation
