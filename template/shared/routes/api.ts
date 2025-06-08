@@ -1,10 +1,18 @@
 
+/**
+ * Namespace for API routes
+ */
 export namespace Api {
-  export enum Auth {
-    login = '/api/login',
-    verify = '/api/verify'
-  }
+  /**
+   * User endpoints
+   */
   export enum User {
-    create = '/api/create'
+    create = '/api/user/create',
+    login = '/api/user/login',
+    verify = '/api/user/verify'
+  }
+
+  export enum Interop {
+    exec = '/api/interop/exec'
   }
 }

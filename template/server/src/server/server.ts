@@ -5,7 +5,17 @@ import { IHandleApi, IMiddleware } from "../middleware/middleware.def";
 import { IConfiguration, ConfigurationFactory } from "../services/config/config.def";
 import { IServer } from "./server.def";
 
+/**
+ * Implement the Server contract.
+ * 
+ * NOTE: must initialize the server with a proper configuration
+ */
 export class Server implements IServer {
+  /**
+   * Create an instance according to the configuration
+   * @param config configuration object
+   * @returns 
+   */
   static fromConfiguration(config: IConfiguration): IServer {
     let expressApp = express();
     let http: Https.Server | Http.Server | undefined;
@@ -21,6 +31,7 @@ export class Server implements IServer {
     }
     return new Server(http, expressApp, config);
   }
+  
   private express: Application;
   private node: Https.Server | Http.Server;
   private configuration: IConfiguration;

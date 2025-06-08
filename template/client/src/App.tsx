@@ -1,12 +1,23 @@
-import { User } from '../../shared';
-import './App.css';
+import { Card, Layout } from 'antd';
+import './App.scss';
+import { useUserContext } from './context/user';
+import { Header } from './components/header/header';
+import { Login } from './pages/login/login';
+import { Footer } from './components/footer/footer';
+import { Dashboard } from './pages/dashboard/dashboard';
 
 export function App() {
-  let user: User | undefined;
+  const user = useUserContext();
+  console.log(`user: ${JSON.stringify(user.user)}`);
+
   return (
     <>
-      <h1>Parcel React App 2</h1>
-      <p>Edit <code>src/App.tsx</code> to get started!</p>
+      {!user.user && (
+        <Login />
+      )}
+      {user.user && user.user.hasAuth && (
+        <Dashboard />
+      )}
     </>
   );
 }

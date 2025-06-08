@@ -1,18 +1,28 @@
 
 import * as Path from 'path';
 import * as FS from 'fs-extra';
-import { DatabaseResult, IDatabase } from '../database.def';
+import { DatabaseError, IDatabase } from '../database.def';
 import { IUserEntity, IUserRecord, UserEntity } from '../entity.def';
 import { v4 as uuid4 } from 'uuid';
+import { Log } from '../../logger/logger';
 
+/**
+ * Define the User table
+ */
 interface UserTable {
   [id: string]: IUserEntity;
 }
 
+/**
+ * Define the overall JSON database
+ */
 interface IJsonDatabase {
   users: UserTable
 }
 
+/**
+ * Implement the database contract using a JSON file as a database
+ */
 export class JsonDatabase implements IDatabase {
   static async fromFile(filename: string) {
     const newDb = new JsonDatabase(filename);
@@ -26,6 +36,11 @@ export class JsonDatabase implements IDatabase {
 
   private constructor(filename: string) {
     this.filename = filename;
+  }
+
+  isError(body: DatabaseError | unknown): body is DatabaseError {
+    const valid = body as DatabaseError;
+    return Boolean(valid.code) && Boolean(valid.message);
   }
 
   async initialize(): Promise<void> {
@@ -49,46 +64,58 @@ export class JsonDatabase implements IDatabase {
   }
 
   private save() {
+    Log.d(this.tag, `db path: ${this.fullPath} -> ${JSON.stringify(this.database)}`)
     return FS.writeFile(this.fullPath, JSON.stringify(this.database));
   }
 
-  getOrCreateUser(partial: Partial<IUserEntity>): Promise<DatabaseResult<IUserRecord>> {
+  private async saveEntity(entity: IUserEntity) {
     return this.ensureDb(async (ensured) => {
-      let result: DatabaseResult<IUserRecord> | undefined;
+      ensured.users[entity.id] = entity;
+      return this.save();
+    });
+  }
+
+  getOrCreateUser(partial: Partial<IUserEntity>): Promise<IUserRecord | DatabaseError> {
+    return this.ensureDb(async (ensured) => {
       if (partial.id) {
+        Log.i(this.tag, `found id: ${partial.id}`);
         let found = ensured.users[partial.id];
-        result = {
-          result: new UserEntity(found)
-        }
-        return result;
+        return new UserEntity(
+          found,
+          (updated) => this.saveEntity(updated)
+        );
       }
       let nameTaken = false;
       for (const user in ensured.users) {
         if (user == partial.name) {
+          Log.w(this.tag, `name ${partial.name} taken`);
           nameTaken = true;
           break;
         }
       }
       if (!nameTaken) {
         partial.id = uuid4();
-        return {
-          result: new UserEntity(partial as IUserEntity)
-        }
+        Log.d(this.tag, `create new ${JSON.stringify(partial)}`);
+        return new UserEntity(
+          partial as IUserEntity,
+          (updated) => this.saveEntity(updated)
+        );
       }
-      result = {
-        failed: 'name taken',
-        result: {} as any
-      };
-      return result;
+      return this.returnError({
+        code: 500,
+        message: 'name taken'
+      });
     });
   }
 
-  delete(entity: IUserEntity): Promise<DatabaseResult<IUserEntity>> {
+  returnError(err: DatabaseError) {
+    return err;
+  }
+
+  delete(entity: IUserEntity): Promise<IUserEntity | DatabaseError> {
     return this.ensureDb(async (ensured) => {
       delete ensured.users[entity.id];
-      return {
-        result: entity
-      }
+      return entity;
     })
   }
 

@@ -2,8 +2,13 @@ import { Application, static as ExpressStatic } from "express";
 import { IMiddleware } from "./middleware.def";
 import * as Path from 'path';
 import { Log } from "../services/logger/logger";
-import { Pages } from "../../../shared/pages";
+import { Pages } from "../../../shared/routes/pages";
 
+/**
+ * Middleware to handle the static files / React page routes.
+ * 
+ * Typically just returns index.html for any route not prefixed with /api/
+ */
 export class StaticMiddleware implements IMiddleware {
   private TAG = 'StaticMiddleware';
   private wwwRoot: string = '';
