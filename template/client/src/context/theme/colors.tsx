@@ -1,6 +1,5 @@
 
 export function useThemeHelpers(isDarkTheme: boolean, baseColor: string) {
-  console.log(`themeHelper: isDark ${isDarkTheme} base: ${baseColor}`);
   const getHsl = () => {
     const baseRgb = hexToRgb(baseColor);
     const baseHsl = rgbToHsl(baseRgb.r, baseRgb.g, baseRgb.b);
