@@ -23,12 +23,11 @@ export namespace UserRequests {
   export class Validator {
     static isCreate(body: Create | unknown): body is Create {
       const valid = body as Create;
-      return Boolean(valid) && Boolean(valid);
+      return valid && Boolean(valid.name) && Boolean(valid.secret);
     }
     static isAuthRequest(body: Auth | unknown): body is Auth {
       const valid = body as Auth;
-      return Boolean(valid.name)
-        && Boolean(valid.secret);
+      return valid && Boolean(valid.name) && Boolean(valid.secret);
     }
   }
 }

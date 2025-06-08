@@ -1,4 +1,4 @@
-import { Application } from "express";
+import { Application, NextFunction, Response, Request } from "express";
 import { IHandleApi } from "../middleware.def";
 import { BaseApiHandler } from "./base";
 import { UserRequests } from "../../../../shared/requests/user";
@@ -28,6 +28,10 @@ export class UserHandler extends BaseApiHandler implements IHandleApi {
    */
   listenForRoutes(app: Application): Application {
     app.post(Api.User.create,
+      (req, res, next) => {
+        Log.i(this.tag, `validate ${req.path} : ${JSON.stringify(req.body)}`)
+        this.validateForRoute(req, res, next)
+      },
       async (req, res, next) => {
         this.sendResponse(res, await this.createUser(req.body))
       }
@@ -61,5 +65,24 @@ export class UserHandler extends BaseApiHandler implements IHandleApi {
       message: 'Failed to create user',
       internalCode: 500
     });
+  }
+
+  private validateForRoute(req: Request, res: Response, next: NextFunction) {
+    Log.i(this.tag, `route validator: ${req.path} - ${JSON.stringify(req.body)}`)
+    switch (req.path) {
+      case Api.User.create:
+        if (UserRequests.Validator.isCreate(req.body)) {
+          Log.i(this.tag, `model is validated`)
+          next();
+          return;
+        }
+        break;
+    }
+    Log.e(this.tag, `Route validator DEFAULT ERROR for ${req.path} with body ${req.body}`);
+    this.sendError(res, {
+      httpStatus: 404, 
+      message: 'route not found in /user',
+      internalCode: 9404
+    })
   }
 }
