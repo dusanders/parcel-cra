@@ -85,10 +85,23 @@ export class ApiService implements IPostUrl, IPostBody, IApiAuth {
   }
 
   async withBody<T>(body: any): Promise<T | ServerError> {
-    const response = await this.instance.post(
-      this.url,
-      body
-    )
-    return response.data
+    try {
+      const response = await this.instance.post(
+        this.url,
+        body
+      );
+      return response.data;
+    } catch (error: axios.AxiosError | unknown) {
+      const casted = error as axios.AxiosError;
+      return this.returnError({
+        httpStatus: casted.status!,
+        message: casted.message,
+        internalCode: casted.response?.data as any
+      })
+    }
+  }
+
+  private returnError(error: ServerError) {
+    return error;
   }
 }

@@ -13,10 +13,10 @@ export function Login(props: LoginProps) {
     <Flex className='login-page-root'>
       <LoginForm
         onCreate={async (form) => {
-          const response = await user.create(form.username, form.password);
+          await user.create(form.username, form.password);
         }}
         onLogin={async (form) => {
-          const response = await user.login(form.username, form.password);
+          await user.login(form.username, form.password);
         }} />
     </Flex>
   )

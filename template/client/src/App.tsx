@@ -4,6 +4,7 @@ import { useUserContext } from './context/user';
 import { Header } from './components/header/header';
 import { LandingPrompt } from './components/landingPrompt/landingPrompt';
 import { Login } from './pages/login/login';
+import { Footer } from './components/footer/footer';
 
 export function App() {
   const user = useUserContext();
@@ -16,6 +17,7 @@ export function App() {
         <LandingPrompt />
         <Login />
       </Layout.Content>
+      <Footer />
     </Layout>
   );
 }

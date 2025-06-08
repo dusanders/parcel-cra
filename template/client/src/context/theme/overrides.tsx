@@ -11,8 +11,9 @@ export function ThemeOverrides(props: ThemeOverridesProps) {
       theme={{
         components: {
           Layout: {
-            headerBg: token.colorFillSecondary,
-            bodyBg: token.colorBgLayout
+            headerBg: token.colorFillContentHover,
+            bodyBg: token.colorBgLayout,
+            footerBg: token.colorFillContentHover
           }
         }
       }}>
