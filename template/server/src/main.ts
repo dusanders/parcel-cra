@@ -10,9 +10,15 @@ import { UserHandler } from "./middleware/api/user";
 import { Server } from "./server/server";
 import { JsonDatabase } from "./services/database/json/json";
 
+/**
+ * Class to handle all application logic: start / stop server, etc
+ */
 class Main {
   private server?: IServer;
-
+  /**
+   * Start the server
+   * @param configuration 
+   */
   async start(configuration: IConfiguration) {
     console.log(`Start ${configuration.port}`);
 
@@ -28,9 +34,17 @@ class Main {
       .addMiddleware(new StaticMiddleware(configuration.www))
       .start();
   }
+  /**
+   * Stop the server
+   */
   stop() {
     this.server?.stop();
   }
+  /**
+   * Create the required Configuration contract to start a IServer
+   * @param configFile 
+   * @returns 
+   */
   async configure(configFile: string): Promise<IConfiguration> {
     return await ConfigurationFactory.fromFile(configFile);
   }

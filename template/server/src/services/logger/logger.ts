@@ -1,5 +1,10 @@
 import { ILogger } from "./logger.def";
 
+/**
+ * Implement the logger contract
+ * 
+ * NOTE: Use a `const` to act as static class
+ */
 export const Log: ILogger = {
   i(tag: string, message: string) {
     console.info(`${tag} :: ${message}`);

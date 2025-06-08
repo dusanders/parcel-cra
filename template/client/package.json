@@ -9,12 +9,14 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "antd": "^5.25.4",
     "axios": "^1.9.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@parcel/transformer-sass": "^2.15.2",
     "@types/axios": "^0.14.4",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

@@ -1,18 +1,27 @@
 
 import * as Path from 'path';
 import * as FS from 'fs-extra';
-import { DatabaseResult, IDatabase } from '../database.def';
+import { DatabaseError, IDatabase } from '../database.def';
 import { IUserEntity, IUserRecord, UserEntity } from '../entity.def';
 import { v4 as uuid4 } from 'uuid';
 
+/**
+ * Define the User table
+ */
 interface UserTable {
   [id: string]: IUserEntity;
 }
 
+/**
+ * Define the overall JSON database
+ */
 interface IJsonDatabase {
   users: UserTable
 }
 
+/**
+ * Implement the database contract using a JSON file as a database
+ */
 export class JsonDatabase implements IDatabase {
   static async fromFile(filename: string) {
     const newDb = new JsonDatabase(filename);
@@ -52,15 +61,13 @@ export class JsonDatabase implements IDatabase {
     return FS.writeFile(this.fullPath, JSON.stringify(this.database));
   }
 
-  getOrCreateUser(partial: Partial<IUserEntity>): Promise<DatabaseResult<IUserRecord>> {
+  getOrCreateUser(partial: Partial<IUserEntity>): Promise<IUserRecord | DatabaseError> {
     return this.ensureDb(async (ensured) => {
-      let result: DatabaseResult<IUserRecord> | undefined;
+      let result: IUserRecord | undefined;
+      let err: DatabaseError | undefined;
       if (partial.id) {
         let found = ensured.users[partial.id];
-        result = {
-          result: new UserEntity(found)
-        }
-        return result;
+        return new UserEntity(found);
       }
       let nameTaken = false;
       for (const user in ensured.users) {
@@ -71,24 +78,20 @@ export class JsonDatabase implements IDatabase {
       }
       if (!nameTaken) {
         partial.id = uuid4();
-        return {
-          result: new UserEntity(partial as IUserEntity)
-        }
+        return new UserEntity(partial as IUserEntity);
       }
-      result = {
-        failed: 'name taken',
-        result: {} as any
+      err = {
+        code: 500,
+        message: 'name taken'
       };
-      return result;
+      return err;
     });
   }
 
-  delete(entity: IUserEntity): Promise<DatabaseResult<IUserEntity>> {
+  delete(entity: IUserEntity): Promise<IUserEntity | DatabaseError> {
     return this.ensureDb(async (ensured) => {
       delete ensured.users[entity.id];
-      return {
-        result: entity
-      }
+      return entity;
     })
   }
 

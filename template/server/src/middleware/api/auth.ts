@@ -3,11 +3,14 @@ import { AuthenticationService } from "../../services/auth/auth";
 import { IHandleApi } from "../middleware.def";
 import { User } from "../../../../shared";
 import { BaseApiHandler } from "./base";
-import { BaseResponse } from "../../../../shared/responses/base";
 import { UserRequests } from "../../../../shared/requests/user";
 import { Api } from "../../../../shared/routes/api";
 import { UserResponses } from "../../../../shared/responses/user";
+import { ServerError } from "../../../../shared/responses/base";
 
+/**
+ * Authentication API handler. Handles /api/user/auth (login) requests as well.
+ */
 export class AuthHandler extends BaseApiHandler implements IHandleApi {
   private auth: AuthenticationService;
   constructor(auth: AuthenticationService) {
@@ -15,6 +18,14 @@ export class AuthHandler extends BaseApiHandler implements IHandleApi {
     this.auth = auth;
   }
 
+  /**
+   * Validate the request models for each route
+   * @param route 
+   * @param req 
+   * @param res 
+   * @param next 
+   * @returns 
+   */
   private validateForRoute(route: string, req: Request, res: Response, next: NextFunction) {
     let valid = false;
     switch (route) {
@@ -25,16 +36,19 @@ export class AuthHandler extends BaseApiHandler implements IHandleApi {
     if (valid) {
       return next();
     }
-    const errorModel: BaseResponse = {
-      serverError: {
-        httpStatus: 400,
-        message: 'bad model',
-        internalCode: 400
-      }
+    const errorModel: ServerError = {
+      httpStatus: 400,
+      message: 'bad model',
+      internalCode: 400
     }
     this.sendResponse(res, errorModel);
   }
 
+  /**
+   * Attach the middleware request handlers to express
+   * @param express ExpressJS application
+   * @returns 
+   */
   listenForRoutes(express: Application): Application {
     express.post(Api.User.login,
       (req, res, next) => { this.validateForRoute(Api.User.login, req, res, next) },
@@ -55,30 +69,27 @@ export class AuthHandler extends BaseApiHandler implements IHandleApi {
     return express;
   }
 
-  checkAuth(): Promise<403 | 200> {
+  private checkAuth(): Promise<403 | 200> {
     // handled by the auth middleware
     throw new Error("Method not implemented.");
   }
 
-  async login(req: UserRequests.Auth): Promise<UserResponses.Auth> {
+  private async login(req: UserRequests.Auth): Promise<UserResponses.Auth | ServerError> {
     let checkModel: User = {
       name: req.name,
       hasAuth: false,
       jwt: ''
     };
     if (this.auth.checkUser(checkModel)) {
-      checkModel.jwt = this.auth.getJwtForUser(checkModel);
+      checkModel.jwt = await this.auth.getJwtForUser(checkModel);
       return {
         user: checkModel
       };
     }
-    let notallowed: UserResponses.Auth = {
-      serverError: {
-        httpStatus: 403,
-        message: 'not allowed',
-        internalCode: 'oops'
-      },
-      user: undefined
+    let notallowed: ServerError = {
+      httpStatus: 403,
+      message: 'not allowed',
+      internalCode: 'oops'
     };
     return notallowed;
   }

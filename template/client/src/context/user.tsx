@@ -4,6 +4,7 @@ import { AxiosUtils } from "../services/axios";
 import { Api } from "../../../shared/routes/api";
 import { UserRequests } from "../../../shared/requests/user";
 import { ResponseValidator } from "../../../shared/responses/base";
+import { UserResponses } from "../../../shared/responses/user";
 
 export interface IUserContext {
   user?: User;
@@ -20,35 +21,33 @@ export interface UserProviderProps {
 export function UserContext(props: UserProviderProps) {
   const [user, setUser] = useState<User | undefined>(undefined);
   const login = async (name: string, secret: string) => {
-    const api = AxiosUtils.withDefaultAxios();
     const request: UserRequests.Create = {
       name: name,
       secret: secret
     }
-    const response = await api.post(
-      Api.User.login,
-      request
-    );
-    if (ResponseValidator.isError(response.data)) {
+    const response = await AxiosUtils
+      .withDefaultAxios()
+      .postTo(Api.User.login)
+      .withBody<UserResponses.Auth>(request);
+    if (ResponseValidator.isError(response)) {
       return false;
     }
-    setUser(response.data);
+    setUser(response.user);
     return true;
   }
   const create = async (name: string, secret: string) => {
-    const api = AxiosUtils.withDefaultAxios();
     const request: UserRequests.Create = {
       name: name,
       secret: secret
     }
-    const response = await api.post(
-      Api.User.login,
-      request
-    );
-    if (ResponseValidator.isError(response.data)) {
+    const response = await AxiosUtils
+      .withDefaultAxios()
+      .postTo(Api.User.create)
+      .withBody<UserResponses.Create>(request);
+    if (ResponseValidator.isError(response)) {
       return false;
     }
-    setUser(response.data);
+    setUser(response.user);
     return true;
   }
   return (

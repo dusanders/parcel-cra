@@ -1,0 +1,27 @@
+html body{
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  // color-scheme: light dark;
+  // font-family: system-ui;
+  // background-color: #fff;
+}
+.ant-app {
+  flex-grow: 1;
+}
+.app-root {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+}
+.main-layout {
+  height: 100%;
+  width: 100%;
+}
+.main-content {
+  display: flex;
+  flex-direction: column;
+}
