@@ -86,8 +86,13 @@ export class JsonDatabase implements IDatabase {
         );
       }
       let nameTaken = false;
-      for (const user in ensured.users) {
-        if (user == partial.name) {
+      for (const userId in ensured.users) {
+        const user = ensured.users[userId];
+        if (user.name == partial.name) {
+          // Name and secret match - assume this is a login request
+          if(user.secret === partial.secret) {
+            return this.returnRecord(user);
+          }
           Log.w(this.tag, `name ${partial.name} taken`);
           nameTaken = true;
           break;
@@ -96,16 +101,17 @@ export class JsonDatabase implements IDatabase {
       if (!nameTaken) {
         partial.id = uuid4();
         Log.d(this.tag, `create new ${JSON.stringify(partial)}`);
-        return new UserEntity(
-          partial as IUserEntity,
-          (updated) => this.saveEntity(updated)
-        );
+        return this.returnRecord(partial as IUserEntity);
       }
       return this.returnError({
-        code: 500,
-        message: 'name taken'
+        code: 403,
+        message: 'name taken',
       });
     });
+  }
+
+  private returnRecord(entity: IUserEntity) {
+    return new UserEntity(entity, (updated) => this.saveEntity(updated));
   }
 
   returnError(err: DatabaseError) {

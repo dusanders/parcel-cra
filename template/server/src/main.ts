@@ -29,7 +29,7 @@ class Main {
     this.server = await Server.fromConfiguration(configuration)
       .addMiddleware(new CorsMiddleware())
       .addMiddleware(new JsonMiddleware())
-      .addApiHandler(new AuthHandler(authService))
+      .addApiHandler(new AuthHandler(authService, database))
       .addApiHandler(new UserHandler(database, authService))
       .addMiddleware(new StaticMiddleware(configuration.www))
       .start();

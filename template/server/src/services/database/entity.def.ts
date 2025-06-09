@@ -27,7 +27,7 @@ export interface IUserRecord {
    */
   getClientModel(): User;
   /**
-   * Authenticate this user
+   * Authenticate this user. Sets the jwt on the entity
    * @param service 
    */
   authenticate(service: AuthenticationService): Promise<IUserEntity>;
@@ -62,6 +62,7 @@ export class UserEntity implements IUserRecord {
   }
   async authenticate(service: AuthenticationService): Promise<IUserEntity> {
     this.entity.jwt = await service.getJwtForUser(this.getClientModel());
+    await this.saveFn(this.entity);
     return this.entity
   }
   toClientModel(): User {

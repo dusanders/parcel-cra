@@ -7,15 +7,19 @@ import { Api } from "../../../../shared/routes/api";
 import { UserResponses } from "../../../../shared/responses/user";
 import { ServerError } from "../../../../shared/responses/base";
 import { User } from "../../../../shared/models/user";
+import { IDatabase } from "../../services/database/database.def";
+import { IUserEntity } from "../../services/database/entity.def";
 
 /**
  * Authentication API handler. Handles /api/user/auth (login) requests as well.
  */
 export class AuthHandler extends BaseApiHandler implements IHandleApi {
   private auth: AuthenticationService;
-  constructor(auth: AuthenticationService) {
+  private database: IDatabase;
+  constructor(auth: AuthenticationService, userDb: IDatabase) {
     super();
     this.auth = auth;
+    this.database = userDb
   }
 
   /**
@@ -75,22 +79,37 @@ export class AuthHandler extends BaseApiHandler implements IHandleApi {
   }
 
   private async login(req: UserRequests.Auth): Promise<UserResponses.Auth | ServerError> {
-    let checkModel: User = {
+    let checkModel: IUserEntity = {
       name: req.name,
       hasAuth: false,
-      jwt: ''
+      jwt: '',
+      id: '',
+      secret: req.secret
     };
-    if (this.auth.checkUser(checkModel)) {
-      checkModel.jwt = await this.auth.getJwtForUser(checkModel);
-      return {
-        user: checkModel
-      };
+    const found = await this.database.getOrCreateUser(checkModel);
+    if(this.database.isError(found)) {
+      return this.returnError({
+        httpStatus: 403,
+        message: 'no user found',
+        internalCode: 'db error'
+      });
     }
-    let notallowed: ServerError = {
-      httpStatus: 403,
-      message: 'not allowed',
-      internalCode: 'oops'
-    };
-    return notallowed;
+    if(found.getEntity().name !== req.name) {
+      return this.returnError({
+        httpStatus: 403,
+        message: 'no user for name/pass',
+        internalCode: 3403
+      })
+    } else if(found.getEntity().secret !== req.secret) {
+      return this.returnError({
+        httpStatus: 403,
+        message: 'no user for name/pass',
+        internalCode: 4403
+      })
+    }
+    await found.authenticate(this.auth);
+    return {
+      user: found.getClientModel()
+    }
   }
 }
