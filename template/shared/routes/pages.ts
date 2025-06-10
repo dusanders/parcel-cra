@@ -4,5 +4,6 @@
  */
 export enum Pages {
   login = '/login',
-  home = '/home',
+  dashboard = '/dashboard',
+  settings = '/settings'
 }

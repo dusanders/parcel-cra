@@ -4,6 +4,8 @@ import { LoginForm } from './loginForm/loginForm';
 import { useUserContext } from '../../context/user';
 import { LandingPrompt } from './landingPrompt/landingPrompt';
 import { BasePage } from '../basePage';
+import { Pages } from '../../../../shared/routes/pages';
+import { useNavigate } from 'react-router';
 
 export interface LoginProps {
 
@@ -11,6 +13,7 @@ export interface LoginProps {
 
 export function Login(props: LoginProps) {
   const user = useUserContext();
+  const navigate = useNavigate();
   return (
     <BasePage>
       <Flex className='loginPage-root'>
@@ -18,10 +21,14 @@ export function Login(props: LoginProps) {
           <LandingPrompt />
           <LoginForm
             onCreate={async (form) => {
-              await user.create(form.username, form.password);
+              if (await user.create(form.username, form.password)) {
+                navigate(Pages.dashboard);
+              }
             }}
             onLogin={async (form) => {
-              await user.login(form.username, form.password);
+              if (await user.login(form.username, form.password)) {
+                navigate(Pages.dashboard);
+              }
             }} />
         </Card>
       </Flex>

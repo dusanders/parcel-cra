@@ -3,15 +3,17 @@ import { Button, Layout, Menu, theme } from "antd";
 import { useEffect, useState } from "react";
 import { Log } from "../../context/logger/logger";
 import { MenuItemType } from "antd/es/menu/interface";
+import { Pages } from "../../../../shared/routes/pages";
+import { Link } from "react-router";
 
 const baseOptions: MenuItemType[] = [
   {
-    key: 'dashboard',
+    key: Pages.dashboard,
     icon: <UserOutlined />,
     label: 'Dashboard',
   },
   {
-    key: 'settings',
+    key: Pages.settings,
     icon: <SettingOutlined />,
     label: 'Settings',
   },

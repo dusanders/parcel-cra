@@ -21,6 +21,11 @@ export function BasePage(props: BasePageProps) {
     <Layout className='basePage-root'>
       {props.withSlider && (
         <Sider
+          onOptionSelected={(opt) => {
+            if(props.onSiderOptionSelected){
+              props.onSiderOptionSelected(opt)
+            }
+          }}
           options={props.sliderOptions || []}
           label={props.label} />
       )}
