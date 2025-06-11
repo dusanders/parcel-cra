@@ -69,13 +69,13 @@ export class ApiService implements IPostUrl, IPostBody, IApiAuth {
 
   useApiKey(api: string): IPostUrl {
     this.apiKey = api;
-    this.instance.defaults.headers.common['apiKey'] = this.apiKey;
+    this.instance.defaults.headers.common['X-API-KEY'] = this.apiKey;
     return this;
   }
 
   useJwt(jwt: string): IPostUrl {
     this.jwt = jwt
-    this.instance.defaults.headers.common['Bearer: '] = this.jwt;
+    this.instance.defaults.headers.common['Authorization'] = `Bearer: ${this.jwt}`;
     return this;
   }
 

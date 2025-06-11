@@ -19,7 +19,7 @@ export class StaticMiddleware implements IMiddleware {
     const root = Path.resolve(this.wwwRoot);
     Log.i(this.TAG, `Serve from: ${root}`);
     
-    express.get(Pages.home, (req, res, next) => {
+    express.get(Pages.dashboard, (req, res, next) => {
       res.sendFile(Path.resolve(`${root}/index.html`));
     });
     express.get(Pages.login, (req, res, next) => {
