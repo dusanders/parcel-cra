@@ -8,8 +8,8 @@ import { ResponseValidator } from "../../../shared/responses/base";
 import { Log } from "./logger/logger";
 
 export interface IInteropContext {
-  searchGitBranches(cwd: string, pattern: string): Promise<string[]>;
-  searchDirectory(directory: string): Promise<string[]>;
+  searchGitBranches(cwd: string, pattern: string): Promise<InteropResponses.GitSearchBranches>;
+  searchDirectory(directory: string): Promise<InteropResponses.ScanDirectory>;
 }
 
 const InteropContext_React = React.createContext<IInteropContext | null>(null);
@@ -21,23 +21,26 @@ export function InteropContext(props: InteropContextProps) {
   const tag = 'InteropContext';
   const user = useUserContext();
 
-  const searchGitBranches = async (cwd: string, pattern: string): Promise<string[]> => {
-    const request: InteropRequests.ExecCommand = {
-      command: 'git branch --list -a ' + pattern,
-      cwd: cwd
+  const searchGitBranches = async (cwd: string, pattern: string): Promise<InteropResponses.GitSearchBranches> => {
+    const request: InteropRequests.GitSearchBranches = {
+      pattern: pattern,
+      rootDirectory: cwd
     }
     const response = await ApiService.getInstance()
       .useJwt(user.user?.jwt || '')
-      .postTo(Api.Interop.exec)
-      .withBody<InteropResponses.ExecCommand>(request);
+      .postTo(Api.Interop.searchGitBranches)
+      .withBody<InteropResponses.GitSearchBranches>(request);
     if (ResponseValidator.isError(response)) {
       Log.error(tag, `Error searching git branches: ${response.message}`);
-      return [];
+      return {
+        branches: [],
+        originUrl: ''
+      };
     }
-    return response.stdout.split('\n')
+    return response;
   }
 
-  const searchDirectory = async (directory: string): Promise<string[]> => {
+  const searchDirectory = async (directory: string) => {
     const request: InteropRequests.ScanDirectory = {
       directory: directory
     }
@@ -47,11 +50,14 @@ export function InteropContext(props: InteropContextProps) {
       .withBody<InteropResponses.ScanDirectory>(request);
     if (ResponseValidator.isError(response)) {
       Log.error(tag, `Error scanning directory: ${response.message}`);
-      return [];
+      return {
+        files: [],
+        scanDirectory: ''
+      };
     }
-    return response.files;
+    return response;
   }
-  
+
   return (
     <InteropContext_React.Provider value={{
       searchGitBranches: (cwd, pattern) => searchGitBranches(cwd, pattern),

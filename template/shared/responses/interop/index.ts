@@ -4,6 +4,10 @@ export namespace InteropResponses {
     scanDirectory: string;
     files: string[];
   }
+  export interface GitSearchBranches {
+    originUrl: string;
+    branches: string[];
+  }
   export interface ExecCommand {
     error: string | undefined;
     stdout: string;

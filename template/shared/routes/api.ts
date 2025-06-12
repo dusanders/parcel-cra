@@ -16,6 +16,7 @@ export namespace Api {
 
   export enum Interop {
     exec = '/api/interop/exec',
-    scanDirectory = '/api/interop/scan-directory'
+    scanDirectory = '/api/interop/scan-directory',
+    searchGitBranches = '/api/interop/git/search-branches'
   }
 }
