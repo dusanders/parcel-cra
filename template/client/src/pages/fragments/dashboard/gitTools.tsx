@@ -1,5 +1,5 @@
-import { Button, Card, Col, Divider, Flex, Form, Grid, Input, List, Menu, Row, Typography } from "antd";
-import React, { useEffect, useState } from "react";
+import { Button, Card, Col, Divider, Form, Input, Menu, Row, Typography } from "antd";
+import { useEffect, useState } from "react";
 import { DirectoryScan } from "../../../components/directoryScan/directoryScan";
 import { useInteropContext } from "../../../context/interop";
 
@@ -8,7 +8,7 @@ export interface GitToolsProps {
 }
 
 export function GitTools(props: GitToolsProps) {
-  const branchListSpan = 6;
+  const branchListSpan = 8;
   const formInputSpan = 24 - branchListSpan;
   const apiContext = useInteropContext();
   const [project, setProject] = useState('');
@@ -19,7 +19,7 @@ export function GitTools(props: GitToolsProps) {
   const [licenseHref, setLicenseHref] = useState<string>('');
 
   const updateBranches = async () => {
-    if(!Boolean(project)) {
+    if (!Boolean(project)) {
       return;
     }
     const result = await apiContext.searchGitBranches(project, branchFilter);
@@ -31,7 +31,9 @@ export function GitTools(props: GitToolsProps) {
   }
 
   useEffect(() => {
-    setLicenseHref(`${gitOrigin.replace('.git','')}/blob/${selectedBranch}/package.json`);
+    const sanitize = selectedBranch.replace('remotes/origin/', '').replace('origin/', '');
+    const url = `${gitOrigin.replace('.git', '')}/blob/${sanitize}/package.json`;
+    setLicenseHref(url);
   }, [selectedBranch]);
 
   useEffect(() => {
@@ -56,11 +58,16 @@ export function GitTools(props: GitToolsProps) {
             <Form.Item label="Branch" className='branch-form-item'>
               <Input type="text" placeholder="Enter Branch Name"
                 onChange={async (ev) => {
-                  setBranchFilter(ev.target.value+'*');
+                  if (!Boolean(ev.target.value)) {
+                    setBranchFilter('');
+                    return;
+                  }
+                  setBranchFilter(ev.target.value + '*');
                 }} />
             </Form.Item>
           </Form>
           <Button type={'default'}
+            disabled={!Boolean(selectedBranch)}
             href={licenseHref}
             target="_blank"
             style={{ cursor: 'pointer' }}>
@@ -79,6 +86,7 @@ export function GitTools(props: GitToolsProps) {
               console.log(`Clicked branch: ${info.key}`);
               setSelectedBranch(info.key);
             }}
+            selectedKeys={[selectedBranch]}
             mode={'vertical'}
             items={
               branches.map((branch, index) => ({
