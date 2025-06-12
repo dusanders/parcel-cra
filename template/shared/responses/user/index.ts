@@ -16,4 +16,7 @@ export namespace UserResponses {
   export interface Auth {
     user: User;
   }
+  export interface Update {
+    user: User;
+  }
 }

@@ -64,7 +64,6 @@ export class JsonDatabase implements IDatabase {
   }
 
   private save() {
-    Log.d(this.tag, `db path: ${this.fullPath} -> ${JSON.stringify(this.database)}`)
     return FS.writeFile(this.fullPath, JSON.stringify(this.database));
   }
 
@@ -72,6 +71,38 @@ export class JsonDatabase implements IDatabase {
     return this.ensureDb(async (ensured) => {
       ensured.users[entity.id] = entity;
       return this.save();
+    });
+  }
+
+  getUserById(id: string): Promise<IUserRecord | DatabaseError> {
+    return this.ensureDb(async (ensured) => {
+      const found = ensured.users[id];
+      if (found) {
+        Log.i(this.tag, `found user by id: ${id}`);
+        return this.returnRecord(found);
+      }
+      Log.w(this.tag, `user not found by id: ${id}`);
+      return this.returnError({
+        code: 404,
+        message: 'user not found',
+      });
+    });
+  }
+
+  getUserByName(name: string): Promise<IUserRecord | DatabaseError> {
+    return this.ensureDb(async (ensured) => {
+      for (const userId in ensured.users) {
+        const user = ensured.users[userId];
+        if (user.name == name) {
+          Log.i(this.tag, `found user by name: ${name}`);
+          return this.returnRecord(user);
+        }
+      }
+      Log.w(this.tag, `user not found by name: ${name}`);
+      return this.returnError({
+        code: 404,
+        message: 'user not found',
+      });
     });
   }
 

@@ -24,6 +24,8 @@ export interface IDatabase {
    * @param partial 
    */
   getOrCreateUser(partial: Partial<IUserEntity>): Promise<IUserRecord | DatabaseError>;
+  getUserById(id: string): Promise<IUserRecord | DatabaseError>;
+  getUserByName(name: string): Promise<IUserRecord | DatabaseError>;
   /**
    * Delete a user
    * @param entity 

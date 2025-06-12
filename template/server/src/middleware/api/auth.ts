@@ -60,7 +60,7 @@ export class AuthHandler extends BaseApiHandler implements IHandleApi {
         this.sendResponse(res, await this.login(req.body));
       }
     );
-    express.get(Api.User.verify,
+    express.use(Api.User.verify,
       (req, res, next) => {
         this.auth.authenticate(req, res, next)
       },

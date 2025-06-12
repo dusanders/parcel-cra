@@ -8,7 +8,7 @@ import useApp from "antd/es/app/useApp";
  */
 export interface IThemeContext {
   current: string;
-  setNewSeed(color: string): void;
+  setNewSeed(color?: string): void;
   isDarkTheme(): boolean;
   toggleDarkTheme(): void;
 }
@@ -63,7 +63,7 @@ export function ThemeContext(props: ThemeContextProps) {
     <ThemeContext_React.Provider value={{
       current: current,
       setNewSeed: (seed) => {
-        setCurrent(seed);
+        setCurrent(seed || defaultTheme);
       },
       isDarkTheme: () => isDarkTheme,
       toggleDarkTheme: () => { setIsDarkTheme(!isDarkTheme) }
@@ -76,7 +76,7 @@ export function ThemeContext(props: ThemeContextProps) {
           },
           algorithm: isDarkTheme ? theme.darkAlgorithm : theme.defaultAlgorithm
         }}>
-          {/** We have further overrides to do - this is because we need to allow
+        {/** We have further overrides to do - this is because we need to allow
            * Ant Design to calculate our above seed and use those NEW calcs as bases 
            * for other components!
            */}

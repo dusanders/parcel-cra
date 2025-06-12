@@ -1,15 +1,15 @@
 import React, { useEffect } from "react";
-import { BasePage } from "./basePage";
-import { Logo } from "../components/logo/logo";
+import { BasePage } from "../basePage";
+import { Logo } from "../../components/logo/logo";
 import { Outlet, useNavigate } from "react-router";
-import { useUserContext } from "../context/user";
-import { Pages } from "../../../shared/routes/pages";
+import { useUserContext } from "../../context/user";
+import { Pages } from "../../../../shared/routes/pages";
 
 export interface AuthPathProps {
 
 }
 
-export function AuthPage(props: AuthPathProps) {
+export function AuthLayout(props: AuthPathProps) {
   const navigate = useNavigate();
   const user = useUserContext();
   const canRoute = () => {

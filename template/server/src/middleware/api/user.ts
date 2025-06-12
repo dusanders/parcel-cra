@@ -27,16 +27,41 @@ export class UserHandler extends BaseApiHandler implements IHandleApi {
    * @returns 
    */
   listenForRoutes(app: Application): Application {
+    // app.use(Api.User.BASE, (req, res, next) => {
+    //   this.validateForRoute(req, res, next);
+    // });
     app.post(Api.User.create,
       (req, res, next) => {
-        Log.i(this.tag, `validate ${req.path} : ${JSON.stringify(req.body)}`)
-        this.validateForRoute(req, res, next)
+        this.validateForRoute(req, res, next);
       },
       async (req, res, next) => {
         this.sendResponse(res, await this.createUser(req.body))
       }
     );
+    app.post(Api.User.update,
+      (req, res, next) => {
+        this.validateForRoute(req, res, next);
+      },
+      async (req, res, next) => {
+        this.sendResponse(res, await this.updateUser(req.body))
+      }
+    )
     return app;
+  }
+
+  private async updateUser(body: UserRequests.Update): Promise<UserResponses.Update | ServerError> {
+    const user = await this.database.getOrCreateUser(body.newValues);
+    if (this.database.isError(user)) {
+      return this.returnError({
+        httpStatus: 404,
+        message: 'User not found',
+        internalCode: 404
+      });
+    }
+    const updated = await user.updateEntity(body.newValues);
+    return {
+      user: updated.getClientModel()
+    }
   }
 
   private async createUser(body: UserRequests.Create): Promise<UserResponses.Create | ServerError> {
@@ -77,10 +102,17 @@ export class UserHandler extends BaseApiHandler implements IHandleApi {
           return;
         }
         break;
+      case Api.User.update:
+        if (UserRequests.Validator.isUpdate(req.body)) {
+          Log.i(this.tag, `model is validated`)
+          next();
+          return;
+        }
+        break;
     }
     Log.e(this.tag, `Route validator DEFAULT ERROR for ${req.path} with body ${req.body}`);
     this.sendError(res, {
-      httpStatus: 404, 
+      httpStatus: 404,
       message: 'route not found in /user',
       internalCode: 9404
     })

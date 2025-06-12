@@ -7,8 +7,10 @@ export namespace Api {
    * User endpoints
    */
   export enum User {
+    BASE = '/api/user',
     create = '/api/user/create',
     login = '/api/user/login',
+    update = '/api/user/update',
     verify = '/api/user/verify'
   }
 

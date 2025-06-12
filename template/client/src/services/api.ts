@@ -12,6 +12,10 @@ export interface IPostBody {
    * @param body 
    */
   withBody<T>(body: any): Promise<T | ServerError>;
+  /**
+   * No body to request
+   */
+  noBody<T>(): Promise<T | ServerError>;
 }
 
 /**
@@ -82,6 +86,22 @@ export class ApiService implements IPostUrl, IPostBody, IApiAuth {
   postTo(url: string) {
     this.url = url;
     return this;
+  }
+
+  async noBody<T>(): Promise<T | ServerError> {
+    try {
+      const response = await this.instance.post(
+        this.url
+      );
+      return response.data;
+    } catch (error: axios.AxiosError | unknown) {
+      const casted = error as axios.AxiosError;
+      return this.returnError({
+        httpStatus: casted.status!,
+        message: casted.message,
+        internalCode: casted.response?.data as any
+      })
+    }
   }
 
   async withBody<T>(body: any): Promise<T | ServerError> {

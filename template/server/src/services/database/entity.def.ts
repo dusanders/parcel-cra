@@ -53,9 +53,10 @@ export class UserEntity implements IUserRecord {
     return clientModel as User;
   }
   async updateEntity(newValues: Partial<IUserEntity>): Promise<IUserRecord> {
+    const sanitized = this.removeAllKeysExcept(['theme'], newValues)
     this.entity = {
       ...this.entity,
-      ...newValues
+      ...sanitized
     };
     await this.saveFn(this.entity);
     return this;
@@ -67,5 +68,13 @@ export class UserEntity implements IUserRecord {
   }
   toClientModel(): User {
     throw new Error("Method not implemented.");
+  }
+  private removeAllKeysExcept(keys: [keyof IUserEntity], obj: Partial<IUserEntity>): Partial<IUserEntity> {
+    return Object.keys(obj).reduce((acc, key) => {
+      if (keys.includes(key as keyof IUserEntity)) {
+        (acc as any)[key] = (obj as any)[key];
+      }
+      return acc;
+    }, {} as Partial<IUserEntity>);
   }
 }
