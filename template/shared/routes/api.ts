@@ -15,6 +15,7 @@ export namespace Api {
   }
 
   export enum Interop {
-    exec = '/api/interop/exec'
+    exec = '/api/interop/exec',
+    scanDirectory = '/api/interop/scan-directory'
   }
 }

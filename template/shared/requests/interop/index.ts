@@ -4,11 +4,18 @@ export namespace InteropRequests {
     command: string;
     cwd: string;
   }
+  export interface ScanDirectory {
+    directory?: string;
+  }
 
   export class Validator {
     static isExecCommand(body: ExecCommand | unknown): body is ExecCommand {
       const valid = body as ExecCommand;
       return Boolean(valid.command) && Boolean(valid.cwd);
+    }
+    static isScanDirectory(body: ScanDirectory | unknown): body is ScanDirectory {
+      const valid = body as ScanDirectory;
+      return true; //Boolean(valid.directory);
     }
   }
 }
