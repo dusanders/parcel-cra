@@ -9,6 +9,7 @@ import { AuthHandler } from "./middleware/api/auth";
 import { UserHandler } from "./middleware/api/user";
 import { Server } from "./server/server";
 import { JsonDatabase } from "./services/database/json/json";
+import { InteropMiddleware } from "./middleware/api/interop";
 
 /**
  * Class to handle all application logic: start / stop server, etc
@@ -31,6 +32,7 @@ class Main {
       .addMiddleware(new JsonMiddleware())
       .addApiHandler(new AuthHandler(authService, database))
       .addApiHandler(new UserHandler(database, authService))
+      .addApiHandler(new InteropMiddleware())
       .addMiddleware(new StaticMiddleware(configuration.www))
       .start();
   }

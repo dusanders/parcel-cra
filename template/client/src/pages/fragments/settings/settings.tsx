@@ -17,10 +17,8 @@ export function Settings(props: SettingsProps) {
       </Typography.Title>
       <Row>
         <Col span={8}>
-          <Card className="card theme-card">
-            <Typography.Paragraph>
-              Theme Settings
-            </Typography.Paragraph>
+          <Card className="card theme-card"
+          title="Theme Settings">
             <ColorPicker className='color-picker'
               showText
               value={theme.current}

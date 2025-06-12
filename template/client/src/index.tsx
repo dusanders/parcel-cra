@@ -8,6 +8,7 @@ import { App as AntApp } from 'antd';
 // TODO - this import is only until ANT supports react 19+
 import '@ant-design/v5-patch-for-react-19';
 import { BrowserRouter } from 'react-router';
+import { InteropContext } from './context/interop';
 
 let container = document.getElementById("app")!;
 let root = createRoot(container)
@@ -21,9 +22,11 @@ root.render(
       }}>
       <ThemeContext>
         <UserContext>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <InteropContext>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </InteropContext>
         </UserContext>
       </ThemeContext>
     </AntApp>

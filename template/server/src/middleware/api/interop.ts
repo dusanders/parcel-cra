@@ -1,5 +1,5 @@
 import { Application, NextFunction, Request, Response } from "express";
-import { IMiddleware } from "../middleware.def";
+import { IHandleApi, IMiddleware } from "../middleware.def";
 import { Api } from "../../../../shared/routes/api";
 import { BaseApiHandler } from "./base";
 import { InteropRequests } from "../../../../shared/requests/interop";
@@ -14,9 +14,9 @@ interface ExecResult {
   stderr: string;
 }
 
-export class InteropMiddleware extends BaseApiHandler implements IMiddleware {
+export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
   private tag = 'InteropMiddleware';
-  attach(app: Application): Application {
+  listenForRoutes(app: Application): Application {
     app.post(Api.Interop.exec,
       (req, res, next) => { this.validateForRoute(req, res, next) },
       async (req, res) => {
