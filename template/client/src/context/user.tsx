@@ -89,6 +89,7 @@ export function UserContext(props: UserProviderProps) {
       return false;
     }
     saveUser(response.user);
+    theme.setNewSeed(response.user.theme);
     return true;
   }
   const logout = () => {
@@ -107,6 +108,7 @@ export function UserContext(props: UserProviderProps) {
       return false;
     }
     saveUser(response.user);
+    theme.setNewSeed(response.user.theme)
     return true;
   }
   const verifyJwt = async (jwt: string) => {
@@ -134,6 +136,7 @@ export function UserContext(props: UserProviderProps) {
       return false;
     }
     saveUser(response.user);
+    theme.setNewSeed(response.user.theme);
     return true;
   }
 
