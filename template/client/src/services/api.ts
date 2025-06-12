@@ -25,62 +25,74 @@ export interface IApiAuth {
   /**
    * No auth headers
    */
-  notAuthenticated(): IPostUrl;
+  notAuthenticated(): IRestAction;
   /**
    * Attach `Bearer: <jwt>` token
    * @param jwt 
    */
-  useJwt(jwt: string): IPostUrl;
+  useJwt(jwt: string): IRestAction;
   /**
    * Attach `api-key: <key>` token
    * @param api 
    */
-  useApiKey(api: string): IPostUrl;
+  useApiKey(api: string): IRestAction;
 }
 
 /**
  * Define the API utility contract
  */
-export interface IPostUrl {
+export interface IRestAction {
   /**
    * POST to an endpoint
    * @param url 
    */
   postTo(url: string): IPostBody;
+  get(url: string): Promise<number>;
 }
 
 /**
  * Implement the API service
  */
-export class ApiService implements IPostUrl, IPostBody, IApiAuth {
+export class ApiService implements IRestAction, IPostBody, IApiAuth {
   static getInstance(): IApiAuth {
     return new ApiService();
   }
-  private instance: axios.AxiosInstance;
+  private axiosInstance: axios.AxiosInstance;
   private url: string = '';
   private apiKey: string = '';
   private jwt: string = '';
 
   private constructor() {
-    this.instance = axios.default.create({
+    this.axiosInstance = axios.default.create({
       baseURL: API_ENDPOINT
     });
   }
 
-  notAuthenticated(): IPostUrl {
+  notAuthenticated() {
     return this;
   }
 
-  useApiKey(api: string): IPostUrl {
+  useApiKey(api: string) {
     this.apiKey = api;
-    this.instance.defaults.headers.common['X-API-KEY'] = this.apiKey;
+    this.axiosInstance.defaults.headers.common['X-API-KEY'] = this.apiKey;
     return this;
   }
 
-  useJwt(jwt: string): IPostUrl {
+  useJwt(jwt: string) {
     this.jwt = jwt
-    this.instance.defaults.headers.common['Authorization'] = `Bearer: ${this.jwt}`;
+    this.axiosInstance.defaults.headers.common['Authorization'] = `Bearer: ${this.jwt}`;
     return this;
+  }
+
+  async get(url: string): Promise<number> {
+    try {
+      const response = await this.axiosInstance.get(url);
+      return response.status;
+    } catch (error: axios.AxiosError | unknown) {
+      const casted = error as axios.AxiosError;
+      console.error('Error in GET request:', casted.message);
+      return 500;
+    }
   }
 
   postTo(url: string) {
@@ -90,7 +102,7 @@ export class ApiService implements IPostUrl, IPostBody, IApiAuth {
 
   async noBody<T>(): Promise<T | ServerError> {
     try {
-      const response = await this.instance.post(
+      const response = await this.axiosInstance.post(
         this.url
       );
       return response.data;
@@ -106,7 +118,7 @@ export class ApiService implements IPostUrl, IPostBody, IApiAuth {
 
   async withBody<T>(body: any): Promise<T | ServerError> {
     try {
-      const response = await this.instance.post(
+      const response = await this.axiosInstance.post(
         this.url,
         body
       );
