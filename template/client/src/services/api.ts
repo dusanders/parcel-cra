@@ -2,11 +2,13 @@
 import * as axios from "axios";
 import { API_ENDPOINT } from "../../../shared";
 import { ServerError } from "../../../shared/responses/base";
+import { Log } from "../context/logger/logger";
 
 /**
  * Define the API utility contract for POST requests
  */
 export interface IPostBody {
+  withBodyExpectDownload(body: any): Promise<void>;
   /**
    * Attach body to request
    * @param body 
@@ -47,6 +49,10 @@ export interface IRestAction {
    * @param url 
    */
   postTo(url: string): IPostBody;
+  /**
+   * GET an endpoint
+   * @param url 
+   */
   get(url: string): Promise<number>;
 }
 
@@ -57,6 +63,7 @@ export class ApiService implements IRestAction, IPostBody, IApiAuth {
   static getInstance(): IApiAuth {
     return new ApiService();
   }
+  private tag = "ApiService";
   private axiosInstance: axios.AxiosInstance;
   private url: string = '';
   private apiKey: string = '';
@@ -130,6 +137,29 @@ export class ApiService implements IRestAction, IPostBody, IApiAuth {
         message: casted.message,
         internalCode: casted.response?.data as any
       })
+    }
+  }
+
+  async withBodyExpectDownload(body: any): Promise<void> {
+    try {
+      this.axiosInstance.defaults.responseType = 'blob';
+      const response = await this.axiosInstance.post(
+        this.url,
+        body
+      )
+      // create file link in browser's memory
+      const href = URL.createObjectURL(response.data);
+      let filename: string = response.headers['content-disposition'] || 'file';
+      filename = filename.split('filename=')[1].replace(/"/g, '').trim();
+      // create "a" HTML element with href to file & click
+      const link = document.createElement('a');
+      link.href = href;
+      link.setAttribute('download', filename); //or any other extension
+      link.click();
+      URL.revokeObjectURL(href);
+    } catch (error: axios.AxiosError | unknown) {
+      const casted = error as axios.AxiosError;
+      Log.error(this.tag, `axios error (download): ${casted.message}`);
     }
   }
 

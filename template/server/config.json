@@ -4,5 +4,8 @@
     "connection": "file://",
     "secret": "mock_db"
   },
-  "www": "../client/dist"
+  "www": "../client/dist",
+  "interops":  {
+    "tmpFileDir": "../tmpDir"
+  }
 }

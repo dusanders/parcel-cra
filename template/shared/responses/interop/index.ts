@@ -8,6 +8,9 @@ export namespace InteropResponses {
     originUrl: string;
     branches: string[];
   }
+  export interface GitExportFile {
+    
+  }
   export interface ExecCommand {
     error: string | undefined;
     stdout: string;

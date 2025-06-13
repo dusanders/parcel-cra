@@ -32,7 +32,7 @@ class Main {
       .addMiddleware(new JsonMiddleware())
       .addApiHandler(new AuthHandler(authService, database))
       .addApiHandler(new UserHandler(database, authService))
-      .addApiHandler(new InteropMiddleware())
+      .addApiHandler(new InteropMiddleware(configuration.interops))
       .addMiddleware(new StaticMiddleware(configuration.www))
       .start();
   }

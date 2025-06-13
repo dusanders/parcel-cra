@@ -11,6 +11,11 @@ export namespace InteropRequests {
     pattern: string;
     rootDirectory: string;
   }
+  export interface GitExportFile {
+    rootDirectory: string;
+    branch: string;
+    filePath: string;
+  }
   export class Validator {
     static isExecCommand(body: ExecCommand | unknown): body is ExecCommand {
       const valid = body as ExecCommand;
@@ -23,6 +28,10 @@ export namespace InteropRequests {
     static isGitSearchBranches(body: GitSearchBranches | unknown): body is GitSearchBranches {
       const valid = body as GitSearchBranches;
       return Boolean(valid.rootDirectory);
+    }
+    static isGitExportFile(body: GitExportFile | unknown): body is GitExportFile {
+      const valid = body as GitExportFile;
+      return Boolean(valid.rootDirectory) && Boolean(valid.branch) && Boolean(valid.filePath);
     }
   }
 }

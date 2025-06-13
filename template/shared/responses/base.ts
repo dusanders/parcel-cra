@@ -12,6 +12,9 @@ export interface ServerError {
 
 export class ResponseValidator {
   static isError(model: ServerError | unknown): model is ServerError {
+    if(!model) {
+      return false;
+    }
     const valid = model as ServerError;
     return Boolean(valid.httpStatus) && Boolean(valid.message);
   }

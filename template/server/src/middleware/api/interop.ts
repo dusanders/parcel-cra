@@ -7,9 +7,15 @@ import { InteropResponses } from "../../../../shared/responses/interop";
 import { Log } from "../../services/logger/logger";
 import { ProcessService } from "../../services/process/process";
 import * as Path from "path";
+import { IConfigureInterops } from "../../services/config/config.def";
 
 export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
   private tag = 'InteropMiddleware';
+  private config: IConfigureInterops;
+  constructor(config: IConfigureInterops) {
+    super();
+    this.config = config;
+  }
 
   listenForRoutes(app: Application): Application {
     app.post(Api.Interop.exec,
@@ -26,6 +32,12 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
       (req, res, next) => { this.validateForRoute(req, res, next) },
       async (req, res) => {
         this.sendResponse(res, await this.gitSearchBranches(req.body));
+      });
+    app.post(Api.Interop.gitExportFile,
+      (req, res, next) => { this.validateForRoute(req, res, next) },
+      async (req, res) => {
+        const model = req.body as InteropRequests.GitExportFile;
+        this.downloadAndSendFile(model, res);
       });
     return app;
   }
@@ -55,6 +67,12 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
           return;
         }
         break;
+      case Api.Interop.gitExportFile:
+        if (InteropRequests.Validator.isGitExportFile(req.body)) {
+          next();
+          return;
+        }
+        break;
     }
     Log.e(this.tag, `Route validator DEFAULT ERROR for ${req.path} with body ${JSON.stringify(req.body)}`);
     this.sendError(res, {
@@ -62,6 +80,22 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
       message: 'route not found in /api/interop',
       internalCode: 9404
     })
+  }
+
+  private async downloadAndSendFile(model: InteropRequests.GitExportFile, res: Response) {
+    const destPath = await ProcessService.getInstance(this.config.tmpFileDir)
+      .downloadFileWithGit(model.rootDirectory, model.branch, model.filePath);
+    res.download(destPath, '', {
+      headers: {
+        "Access-Control-Expose-Headers": "Content-Disposition",
+        "Content-Disposition": "package.json",
+        "Content-Type": "blob"
+      }
+    }, (err) => {
+      Log.i(this.tag, `done sending file: ${destPath}`);
+      ProcessService.getInstance(this.config.tmpFileDir)
+        .deleteFile(destPath);
+    });
   }
 
   /**
@@ -81,7 +115,8 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
   private async scanDirectory(model: InteropRequests.ScanDirectory): Promise<InteropResponses.ScanDirectory> {
     const toScanDirectory = model.directory || this.getBaseDirectory();
     const scanCommand = `ls ${toScanDirectory}`;
-    const result = await ProcessService.getInstance().runCommand(scanCommand, this.getBaseDirectory());
+    const result = await ProcessService.getInstance(this.config.tmpFileDir)
+      .runCommand(scanCommand, this.getBaseDirectory());
     if (result.error) {
       Log.e(this.tag, `Error scanning directory: ${result.error}`);
       return { files: [], scanDirectory: toScanDirectory };
@@ -98,7 +133,8 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
    */
   private async gitSearchBranches(model: InteropRequests.GitSearchBranches): Promise<InteropResponses.GitSearchBranches> {
     const gitCommand = `git branch --list -a ${model.pattern}`;
-    const result = await ProcessService.getInstance().runCommand(gitCommand, model.rootDirectory);
+    const result = await ProcessService.getInstance(this.config.tmpFileDir)
+      .runCommand(gitCommand, model.rootDirectory);
     if (result.error) {
       Log.e(this.tag, `Error searching git branches: ${result.error}`);
       return { branches: [], originUrl: '' };
@@ -110,7 +146,8 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
       .split('\n')
       .map(b => b.trim())
       .filter(b => b.length > 0);
-    const originResult = await ProcessService.getInstance().runCommand('git config --get remote.origin.url', model.rootDirectory);
+    const originResult = await ProcessService.getInstance(this.config.tmpFileDir)
+      .runCommand('git config --get remote.origin.url', model.rootDirectory);
     const originUrl = originResult.error ? '' : originResult.stdout.trim();
     return { branches: branches, originUrl: originUrl };
   }
@@ -121,6 +158,6 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
    * @returns InteropResponses.ExecCommand
    */
   private async execCommand(model: InteropRequests.ExecCommand): Promise<InteropResponses.ExecCommand> {
-    return await ProcessService.getInstance().runCommand(model.command, model.cwd);
+    return await ProcessService.getInstance(this.config.tmpFileDir).runCommand(model.command, model.cwd);
   }
 }

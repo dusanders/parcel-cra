@@ -68,8 +68,11 @@ export function GitTools(props: GitToolsProps) {
           </Form>
           <Button type={'default'}
             disabled={!Boolean(selectedBranch)}
-            href={licenseHref}
-            target="_blank"
+            onClick={() => {
+              apiContext.exportGitFile(project, selectedBranch, 'package.json');
+            }}
+            // href={licenseHref}
+            // target="_blank"
             style={{ cursor: 'pointer' }}>
             Export package.json
           </Button>

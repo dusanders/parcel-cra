@@ -1,6 +1,13 @@
 import * as fs from 'fs-extra';
 
 /**
+ * Define contract for interops configuration
+ */
+export interface IConfigureInterops {
+  tmpFileDir: string;
+}
+
+/**
  * Define contract for database configuration
  */
 export interface IConfigureDatabase {
@@ -14,10 +21,10 @@ export interface IConfigureDatabase {
 export interface IConfiguration {
   port: number;
   www: string;
+  interops: IConfigureInterops;
   database: IConfigureDatabase;
   sslKey?: string;
   sslCert?: string;
-
 }
 
 /**

@@ -8,6 +8,7 @@ import { ResponseValidator } from "../../../shared/responses/base";
 import { Log } from "./logger/logger";
 
 export interface IInteropContext {
+  exportGitFile(cwd: string, branch: string, filePath: string): Promise<void>;
   searchGitBranches(cwd: string, pattern: string): Promise<InteropResponses.GitSearchBranches>;
   searchDirectory(directory: string): Promise<InteropResponses.ScanDirectory>;
 }
@@ -20,6 +21,21 @@ export interface InteropContextProps {
 export function InteropContext(props: InteropContextProps) {
   const tag = 'InteropContext';
   const user = useUserContext();
+
+  const exportGitFile = async (cwd: string, branch: string, filePath: string): Promise<void> => {
+    const request: InteropRequests.GitExportFile = {
+      branch: branch,
+      filePath: filePath,
+      rootDirectory: cwd
+    }
+    const response = await ApiService.getInstance()
+      .useJwt(user.user?.jwt || '')
+      .postTo(Api.Interop.gitExportFile)
+      .withBodyExpectDownload(request);
+    if (ResponseValidator.isError(response)) {
+      Log.error(tag, `Error exporting git file: ${response.message}`);
+    }
+  }
 
   const searchGitBranches = async (cwd: string, pattern: string): Promise<InteropResponses.GitSearchBranches> => {
     const request: InteropRequests.GitSearchBranches = {
@@ -60,6 +76,7 @@ export function InteropContext(props: InteropContextProps) {
 
   return (
     <InteropContext_React.Provider value={{
+      exportGitFile: (cwd, branch, filePath) => exportGitFile(cwd, branch, filePath),
       searchGitBranches: (cwd, pattern) => searchGitBranches(cwd, pattern),
       searchDirectory: (dir) => searchDirectory(dir)
     }}>

@@ -1,20 +1,26 @@
 import { exec } from "node:child_process";
+import * as Path from "path";
+import * as FS from 'fs-extra';
+import { Log } from "../logger/logger";
 
 export class ProcessService implements IProcessService {
   private static instance: ProcessService;
 
-  private constructor() {
-    // Private constructor to prevent instantiation
+  private tag = 'ProcessService';
+  private tmpDir: string = '';
+
+  private constructor(tmpDir?: string) {
+    this.tmpDir = tmpDir || '';
   }
 
-  public static getInstance(): ProcessService {
+  static getInstance(tmpDir: string): ProcessService {
     if (!ProcessService.instance) {
-      ProcessService.instance = new ProcessService();
+      ProcessService.instance = new ProcessService(tmpDir);
     }
     return ProcessService.instance;
   }
 
-  public async runCommand(command: string, cwd: string): Promise<ProcessResult> {
+  async runCommand(command: string, cwd: string): Promise<ProcessResult> {
     // Simulate running a command and returning the output
     return new Promise((resolve) => {
       exec(command,
@@ -29,6 +35,21 @@ export class ProcessService implements IProcessService {
       );
     });
   }
+
+  async downloadFileWithGit(cwd: string, branch: string, filepath: string): Promise<string> {
+    if(!FS.existsSync(this.tmpDir)) {
+      FS.mkdirpSync(this.tmpDir);
+    }
+    const destPath = Path.resolve(this.tmpDir, filepath);
+    const gitCommand = `git show ${branch}:${filepath} > ${destPath}`;
+    const result = await this.runCommand(gitCommand, cwd);
+    Log.i(this.tag, `Downloaded file with git command: ${gitCommand} with result: ${result.stdout} error: ${result.error}`);
+    return destPath
+  }
+
+  deleteFile(path: string): void {
+    FS.unlinkSync(path);
+  }
 }
 
 export interface ProcessResult {
@@ -38,4 +59,6 @@ export interface ProcessResult {
 }
 export interface IProcessService {
   runCommand(command: string, cwd: string): Promise<ProcessResult>;
+  downloadFileWithGit(cwd: string, branch: string, filepath: string): Promise<string>;
+  deleteFile(path: string): void;
 }
