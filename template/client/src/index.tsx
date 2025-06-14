@@ -21,13 +21,13 @@ root.render(
         duration: 1.2
       }}>
       <ThemeContext>
-        <UserContext>
-          <InteropContext>
-            <BrowserRouter>
+        <BrowserRouter>
+          <UserContext>
+            <InteropContext>
               <App />
-            </BrowserRouter>
-          </InteropContext>
-        </UserContext>
+            </InteropContext>
+          </UserContext>
+        </BrowserRouter>
       </ThemeContext>
     </AntApp>
   </StrictMode>

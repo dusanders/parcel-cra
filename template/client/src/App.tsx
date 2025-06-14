@@ -14,8 +14,8 @@ export function App() {
 
   return (
     <Routes>
-      <Route path='/' element={(<NoAuthLayout />)}>
-        <Route element={(<Login />)} index />
+      <Route element={(<NoAuthLayout />)}>
+        <Route path={'/'} element={(<Login />)} />
         <Route path={Pages.login} element={(<Login />)} />
       </Route>
       <Route element={(<AuthLayout />)}>

@@ -8,6 +8,8 @@ import { User } from "../../../shared/models/user";
 import { Loading } from "../pages/fragments/loading/loading";
 import { BasePage } from "../pages/basePage";
 import { useThemeContext } from "./theme/theme";
+import { useNavigate } from "react-router";
+import { Pages } from "../../../shared/routes/pages";
 
 /**
  * Define the logic for the User context
@@ -64,12 +66,14 @@ const UserModelKey = 'user';
  */
 export function UserContext(props: UserProviderProps) {
   const theme = useThemeContext();
+  const router = useNavigate();
   const [user, setUser] = useState<User | undefined>(undefined);
   const [loaded, setLoaded] = useState<boolean>(false);
   const saveUser = (user?: User) => {
     if (!user) {
       localStorage.removeItem(UserModelKey);
       setUser(undefined);
+      router(Pages.login)
     } else {
       localStorage.setItem(UserModelKey, JSON.stringify(user));
       setUser(user);
@@ -88,6 +92,7 @@ export function UserContext(props: UserProviderProps) {
     if (ResponseValidator.isError(response)) {
       return false;
     }
+    response.user.hasAuth = true;
     saveUser(response.user);
     theme.setNewSeed(response.user.theme);
     return true;
@@ -107,6 +112,7 @@ export function UserContext(props: UserProviderProps) {
     if (ResponseValidator.isError(response)) {
       return false;
     }
+    response.user.hasAuth = true;
     saveUser(response.user);
     theme.setNewSeed(response.user.theme)
     return true;
@@ -135,6 +141,7 @@ export function UserContext(props: UserProviderProps) {
     if (ResponseValidator.isError(response)) {
       return false;
     }
+    response.user.hasAuth = true;
     saveUser(response.user);
     theme.setNewSeed(response.user.theme);
     return true;
@@ -151,6 +158,8 @@ export function UserContext(props: UserProviderProps) {
           return;
         }
         if (userModel) {
+          userModel.hasAuth = true;
+          router(Pages.dashboard)
           saveUser(userModel);
           theme.setNewSeed(userModel.theme)
         }
