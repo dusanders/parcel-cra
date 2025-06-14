@@ -1,7 +1,8 @@
 import { Button, Card, Col, Divider, Form, Input, Menu, Row, Typography } from "antd";
 import { useEffect, useState } from "react";
-import { DirectoryScan } from "../../../components/directoryScan/directoryScan";
+import { DirectoryScan } from "./directoryScan";
 import { useInteropContext } from "../../../context/interop";
+import { removeDuplicates } from "../../../utils/utils";
 
 export interface GitToolsProps {
 
@@ -18,20 +19,25 @@ export function GitTools(props: GitToolsProps) {
   const [gitOrigin, setGitOrigin] = useState<string>('');
   const [licenseHref, setLicenseHref] = useState<string>('');
 
+  const removeOriginPrefix = (branch: string) => {
+    return branch.replace('remotes/origin/', '').replace('origin/', '').replace('HEAD -> ', '')
+  }
   const updateBranches = async () => {
     if (!Boolean(project)) {
       return;
     }
     const result = await apiContext.searchGitBranches(project, branchFilter);
-    setBranches([
-      ...result.branches,
-    ]);
+    const truncated = result.branches
+      .map((branch) => removeOriginPrefix(branch))
+      .sort((a, b) => a.localeCompare(b));
+    const sanitized = removeDuplicates(truncated)
+    setBranches(sanitized);
     setGitOrigin(result.originUrl);
-    setSelectedBranch(result.branches[0] || '');
+    setSelectedBranch(sanitized[0] || '');
   }
 
   useEffect(() => {
-    const sanitize = selectedBranch.replace('remotes/origin/', '').replace('origin/', '');
+    const sanitize = removeOriginPrefix(selectedBranch);
     const url = `${gitOrigin.replace('.git', '')}/blob/${sanitize}/package.json`;
     setLicenseHref(url);
   }, [selectedBranch]);
