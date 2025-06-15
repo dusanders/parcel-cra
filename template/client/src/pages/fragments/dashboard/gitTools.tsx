@@ -22,29 +22,28 @@ export function GitTools(props: GitToolsProps) {
   const removeOriginPrefix = (branch: string) => {
     return branch.replace('remotes/origin/', '').replace('origin/', '').replace('HEAD -> ', '')
   }
+
   const updateBranches = async () => {
     if (!Boolean(project)) {
       return;
     }
     const result = await apiContext.searchGitBranches(project, branchFilter);
-    const truncated = result.branches
-      .map((branch) => removeOriginPrefix(branch))
-      .sort((a, b) => a.localeCompare(b));
-    const sanitized = removeDuplicates(truncated)
-    setBranches(sanitized);
+    setBranches(result.branches);
     setGitOrigin(result.originUrl);
-    setSelectedBranch(sanitized[0] || '');
+    setSelectedBranch(result.branches[0] || '');
   }
 
   useEffect(() => {
-    const sanitize = removeOriginPrefix(selectedBranch);
-    const url = `${gitOrigin.replace('.git', '')}/blob/${sanitize}/package.json`;
+    const url = `${gitOrigin.replace('.git', '')}/blob/${selectedBranch}/package.json`;
     setLicenseHref(url);
   }, [selectedBranch]);
 
   useEffect(() => {
     updateBranches();
-  }, [project, branchFilter]);
+    if (Boolean(selectedBranch)) {
+      apiContext.checkGitFile(project, selectedBranch, 'package.json');
+    }
+  }, [project, branchFilter, selectedBranch]);
 
   return (
     <Card title="Git Tools">
@@ -77,8 +76,6 @@ export function GitTools(props: GitToolsProps) {
             onClick={() => {
               apiContext.exportGitFile(project, selectedBranch, 'package.json');
             }}
-            // href={licenseHref}
-            // target="_blank"
             style={{ cursor: 'pointer' }}>
             Export package.json
           </Button>
@@ -102,7 +99,7 @@ export function GitTools(props: GitToolsProps) {
                 key: branch,
                 label: (
                   <Typography.Text>
-                    {branch}
+                    {removeOriginPrefix(branch)}
                   </Typography.Text>
                 )
               }))

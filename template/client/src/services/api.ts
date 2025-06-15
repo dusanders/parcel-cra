@@ -97,7 +97,6 @@ export class ApiService implements IRestAction, IPostBody, IApiAuth {
       return response.status;
     } catch (error: axios.AxiosError | unknown) {
       const casted = error as axios.AxiosError;
-      console.error('Error in GET request:', casted.message);
       return 500;
     }
   }
@@ -159,7 +158,7 @@ export class ApiService implements IRestAction, IPostBody, IApiAuth {
       URL.revokeObjectURL(href);
     } catch (error: axios.AxiosError | unknown) {
       const casted = error as axios.AxiosError;
-      Log.error(this.tag, `axios error (download): ${casted.message}`);
+      Log.warn(this.tag, `axios error (download): ${casted.message}`);
     }
   }
 

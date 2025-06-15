@@ -39,6 +39,12 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
         const model = req.body as InteropRequests.GitExportFile;
         this.downloadAndSendFile(model, res);
       });
+    app.post(Api.Interop.gitHasFile,
+      (req, res, next) => { this.validateForRoute(req, res, next) },
+      async (req, res) => {
+        this.checkForFile(req.body, res)
+      }
+    )
     return app;
   }
 
@@ -73,6 +79,12 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
           return;
         }
         break;
+      case Api.Interop.gitHasFile:
+        if (InteropRequests.Validator.isGitHasFile(req.body)) {
+          next();
+          return;
+        }
+        break;
     }
     Log.e(this.tag, `Route validator DEFAULT ERROR for ${req.path} with body ${JSON.stringify(req.body)}`);
     this.sendError(res, {
@@ -80,6 +92,19 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
       message: 'route not found in /api/interop',
       internalCode: 9404
     })
+  }
+
+  private async checkForFile(model: InteropRequests.GitHasFile, res: Response) {
+    const filename = Path.basename(model.filePath);
+    const result = await ProcessService.getInstance(this.config.tmpFileDir)
+      .checkGitForFile(model.rootDirectory, model.branch, model.filePath);
+    if (result.find((item) => item.path === filename)) {
+      res.status(200);
+      res.end();
+    } else {
+      res.status(406);
+      res.end();
+    }
   }
 
   private async downloadAndSendFile(model: InteropRequests.GitExportFile, res: Response) {
@@ -145,7 +170,10 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
       .trim()
       .split('\n')
       .map(b => b.trim())
-      .filter(b => b.length > 0);
+      .filter(b => (b.length > 0)
+        && b.startsWith('remotes/origin')
+        && !b.startsWith('remotes/origin/HEAD ->')
+      );
     const originResult = await ProcessService.getInstance(this.config.tmpFileDir)
       .runCommand('git config --get remote.origin.url', model.rootDirectory);
     const originUrl = originResult.error ? '' : originResult.stdout.trim();

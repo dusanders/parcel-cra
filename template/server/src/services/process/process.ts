@@ -3,6 +3,26 @@ import * as Path from "path";
 import * as FS from 'fs-extra';
 import { Log } from "../logger/logger";
 
+export enum GitFileModes {
+  normal = '100644',
+  executable = '100755',
+  symLink = '120000'
+}
+
+export enum GitFileType {
+  blob = 'blob',
+  commit = 'commit',
+  tree = 'tree'
+}
+
+export interface GitTreeItem {
+  fileMode: GitFileModes,
+  type: GitFileType,
+  hashName: string,
+  size: number,
+  path: string
+}
+
 export class ProcessService implements IProcessService {
   private static instance: ProcessService;
 
@@ -37,7 +57,7 @@ export class ProcessService implements IProcessService {
   }
 
   async downloadFileWithGit(cwd: string, branch: string, filepath: string): Promise<string> {
-    if(!FS.existsSync(this.tmpDir)) {
+    if (!FS.existsSync(this.tmpDir)) {
       FS.mkdirpSync(this.tmpDir);
     }
     const destPath = Path.resolve(this.tmpDir, filepath);
@@ -45,6 +65,32 @@ export class ProcessService implements IProcessService {
     const result = await this.runCommand(gitCommand, cwd);
     Log.i(this.tag, `Downloaded file with git command: ${gitCommand} with result: ${result.stdout} error: ${result.error}`);
     return destPath
+  }
+
+  async checkGitForFile(cwd: string, branch: string, filepath: string): Promise<GitTreeItem[]> {
+    let parentDir = Path.dirname(filepath);
+    if(parentDir === '.') {
+      parentDir = ''
+    }
+    const command = `git ls-tree --format='%(objectmode) %(objecttype) %(objectname) %(objectsize) %(path)' ${branch}:${parentDir}`;
+    const result = await this.runCommand(command, cwd);
+    if (result.error) {
+      Log.e(this.tag, `Failed to ls-tree: ${result.error}`);
+      return []
+    }
+    const newLineSplit = result.stdout.split('\n');
+    const objects = newLineSplit.map((line) => {
+      const lineSplit = line.split(' ');
+      const item: GitTreeItem = {
+        fileMode: lineSplit[0] as GitFileModes,
+        type: lineSplit[1] as GitFileType,
+        hashName: lineSplit[2],
+        size: lineSplit[3] === '-' ? 0 : Number(lineSplit[3]),
+        path: lineSplit[4]
+      }
+      return item
+    });
+    return objects;
   }
 
   deleteFile(path: string): void {

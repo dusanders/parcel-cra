@@ -11,11 +11,25 @@ export namespace InteropRequests {
     pattern: string;
     rootDirectory: string;
   }
+  /**
+   * Represents a file to be exported from a Git repository.
+   *
+   * @property rootDirectory - The root directory of the Git repository.
+   * @property branch - The name of the branch from which the file is exported.
+   * @property filePath - The path to the file within the repository.
+   */
   export interface GitExportFile {
     rootDirectory: string;
     branch: string;
     filePath: string;
   }
+  
+  export interface GitHasFile {
+    rootDirectory: string;
+    branch: string;
+    filePath: string;
+  }
+  
   export class Validator {
     static isExecCommand(body: ExecCommand | unknown): body is ExecCommand {
       const valid = body as ExecCommand;
@@ -30,6 +44,10 @@ export namespace InteropRequests {
       return Boolean(valid.rootDirectory);
     }
     static isGitExportFile(body: GitExportFile | unknown): body is GitExportFile {
+      const valid = body as GitExportFile;
+      return Boolean(valid.rootDirectory) && Boolean(valid.branch) && Boolean(valid.filePath);
+    }
+    static isGitHasFile(body: GitHasFile | unknown): body is GitHasFile {
       const valid = body as GitExportFile;
       return Boolean(valid.rootDirectory) && Boolean(valid.branch) && Boolean(valid.filePath);
     }

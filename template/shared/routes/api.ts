@@ -18,6 +18,7 @@ export namespace Api {
     exec = '/api/interop/exec',
     scanDirectory = '/api/interop/scan-directory',
     searchGitBranches = '/api/interop/git/search-branches',
-    gitExportFile = '/api/interop/git/export-file'
+    gitExportFile = '/api/interop/git/export-file',
+    gitHasFile = '/api/interop/git/has-file'
   }
 }

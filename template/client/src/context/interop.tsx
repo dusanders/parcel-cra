@@ -8,6 +8,7 @@ import { ResponseValidator } from "../../../shared/responses/base";
 import { Log } from "./logger/logger";
 
 export interface IInteropContext {
+  checkGitFile(cwd: string, branch: string, filePath: string): Promise<void>;
   exportGitFile(cwd: string, branch: string, filePath: string): Promise<void>;
   searchGitBranches(cwd: string, pattern: string): Promise<InteropResponses.GitSearchBranches>;
   searchDirectory(directory: string): Promise<InteropResponses.ScanDirectory>;
@@ -22,6 +23,21 @@ export function InteropContext(props: InteropContextProps) {
   const tag = 'InteropContext';
   const user = useUserContext();
 
+  const checkGitFile = async (cwd: string, branch: string, filePath: string) => {
+    const request: InteropRequests.GitHasFile = {
+      rootDirectory: cwd,
+      branch: branch,
+      filePath: filePath
+    }
+    const response = await ApiService.getInstance()
+      .useJwt(user.user?.jwt || '')
+      .postTo(Api.Interop.gitHasFile)
+      .withBody(request);
+    if (ResponseValidator.isError(response)) {
+      Log.warn(tag, `Error checking git file: ${response.message}`);
+    }
+  }
+
   const exportGitFile = async (cwd: string, branch: string, filePath: string): Promise<void> => {
     const request: InteropRequests.GitExportFile = {
       branch: branch,
@@ -33,7 +49,7 @@ export function InteropContext(props: InteropContextProps) {
       .postTo(Api.Interop.gitExportFile)
       .withBodyExpectDownload(request);
     if (ResponseValidator.isError(response)) {
-      Log.error(tag, `Error exporting git file: ${response.message}`);
+      Log.warn(tag, `Error exporting git file: ${response.message}`);
     }
   }
 
@@ -47,7 +63,7 @@ export function InteropContext(props: InteropContextProps) {
       .postTo(Api.Interop.searchGitBranches)
       .withBody<InteropResponses.GitSearchBranches>(request);
     if (ResponseValidator.isError(response)) {
-      Log.error(tag, `Error searching git branches: ${response.message}`);
+      Log.warn(tag, `Error searching git branches: ${response.message}`);
       return {
         branches: [],
         originUrl: ''
@@ -65,7 +81,7 @@ export function InteropContext(props: InteropContextProps) {
       .postTo(Api.Interop.scanDirectory)
       .withBody<InteropResponses.ScanDirectory>(request);
     if (ResponseValidator.isError(response)) {
-      Log.error(tag, `Error scanning directory: ${response.message}`);
+      Log.warn(tag, `Error scanning directory: ${response.message}`);
       return {
         files: [],
         scanDirectory: ''
@@ -76,6 +92,7 @@ export function InteropContext(props: InteropContextProps) {
 
   return (
     <InteropContext_React.Provider value={{
+      checkGitFile: (cwd, branch, filePath) => checkGitFile(cwd, branch, filePath),
       exportGitFile: (cwd, branch, filePath) => exportGitFile(cwd, branch, filePath),
       searchGitBranches: (cwd, pattern) => searchGitBranches(cwd, pattern),
       searchDirectory: (dir) => searchDirectory(dir)
