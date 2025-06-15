@@ -8,7 +8,7 @@ import { ResponseValidator } from "../../../shared/responses/base";
 import { Log } from "./logger/logger";
 
 export interface IInteropContext {
-  checkGitFile(cwd: string, branch: string, filePath: string): Promise<void>;
+  checkGitFile(cwd: string, branch: string, filePath: string): Promise<boolean>;
   exportGitFile(cwd: string, branch: string, filePath: string): Promise<void>;
   searchGitBranches(cwd: string, pattern: string): Promise<InteropResponses.GitSearchBranches>;
   searchDirectory(directory: string): Promise<InteropResponses.ScanDirectory>;
@@ -35,7 +35,9 @@ export function InteropContext(props: InteropContextProps) {
       .withBody(request);
     if (ResponseValidator.isError(response)) {
       Log.warn(tag, `Error checking git file: ${response.message}`);
+      return false;
     }
+    return true;
   }
 
   const exportGitFile = async (cwd: string, branch: string, filePath: string): Promise<void> => {

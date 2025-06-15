@@ -17,6 +17,7 @@ export function GitTools(props: GitToolsProps) {
   const [branchFilter, setBranchFilter] = useState<string>('');
   const [selectedBranch, setSelectedBranch] = useState<string>('');
   const [gitOrigin, setGitOrigin] = useState<string>('');
+  const [isFileAvailable, setIsFileAvailable] = useState(false);
   const [licenseHref, setLicenseHref] = useState<string>('');
 
   const removeOriginPrefix = (branch: string) => {
@@ -30,19 +31,26 @@ export function GitTools(props: GitToolsProps) {
     const result = await apiContext.searchGitBranches(project, branchFilter);
     setBranches(result.branches);
     setGitOrigin(result.originUrl);
-    setSelectedBranch(result.branches[0] || '');
+    if(!selectedBranch || !result.branches.find((branch) => branch === selectedBranch)) {
+      setSelectedBranch(result.branches[0])
+    }
+  }
+
+  const checkFile = async () => {
+    if (Boolean(selectedBranch)) {
+      const isAvailable = await apiContext.checkGitFile(project, selectedBranch, 'package.json');
+      setIsFileAvailable(isAvailable);
+    }
   }
 
   useEffect(() => {
     const url = `${gitOrigin.replace('.git', '')}/blob/${selectedBranch}/package.json`;
     setLicenseHref(url);
+    checkFile();
   }, [selectedBranch]);
 
   useEffect(() => {
     updateBranches();
-    if (Boolean(selectedBranch)) {
-      apiContext.checkGitFile(project, selectedBranch, 'package.json');
-    }
   }, [project, branchFilter, selectedBranch]);
 
   return (
@@ -72,7 +80,7 @@ export function GitTools(props: GitToolsProps) {
             </Form.Item>
           </Form>
           <Button type={'default'}
-            disabled={!Boolean(selectedBranch)}
+            disabled={!Boolean(isFileAvailable)}
             onClick={() => {
               apiContext.exportGitFile(project, selectedBranch, 'package.json');
             }}
