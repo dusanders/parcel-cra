@@ -9,7 +9,6 @@ import { ProcessService } from "../../services/process/process";
 import * as Path from "path";
 import * as NodePTY from 'node-pty';
 import { IConfigureInterops } from "../../services/config/config.def";
-import { spawn } from "child_process";
 
 export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
   private tag = 'InteropMiddleware';

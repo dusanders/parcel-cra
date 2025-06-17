@@ -11,5 +11,9 @@ export interface IMiddleware {
  * Define contract for all api endpoint handlers
  */
 export interface IHandleApi {
+  /**
+   * Register the middleware for routes on the Express instance
+   * @param app 
+   */
   listenForRoutes(app: Application): Application;
 }
