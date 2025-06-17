@@ -7,7 +7,9 @@ import { InteropResponses } from "../../../../shared/responses/interop";
 import { Log } from "../../services/logger/logger";
 import { ProcessService } from "../../services/process/process";
 import * as Path from "path";
+import * as NodePTY from 'node-pty';
 import { IConfigureInterops } from "../../services/config/config.def";
+import { spawn } from "child_process";
 
 export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
   private tag = 'InteropMiddleware';
@@ -15,6 +17,7 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
   constructor(config: IConfigureInterops) {
     super();
     this.config = config;
+    this.testScript();
   }
 
   listenForRoutes(app: Application): Application {
@@ -130,6 +133,26 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
   private getBaseDirectory(): string {
     // This file is pretty deep in the server structure, so we need to go up a lot
     return Path.resolve(__dirname, '../../../../../../../..');
+  }
+
+  private getScriptsDirectory(): string {
+    // This file is pretty deep in the server structure, so we need to go up a lot
+    return Path.resolve(__dirname, '../../../../../../..');
+  }
+
+  private testScript(): void {
+    const cwd = Path.resolve(this.getScriptsDirectory());
+    const absPath = Path.resolve(cwd, 'test.sh');
+    const ptyScript = NodePTY.spawn('sh', [absPath], {
+      cwd: cwd,
+    });
+    ptyScript.onData((data) => {
+      if (data.startsWith('Enter your name')) {
+        ptyScript.write('test\r\n');
+      } else {
+        console.log(`output: ${data}`);
+      }
+    });
   }
 
   /**
