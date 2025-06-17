@@ -11,6 +11,10 @@ export namespace InteropRequests {
     pattern: string;
     rootDirectory: string;
   }
+  export interface BashScript {
+    cwd: string;
+    args: string[];
+  }
   /**
    * Represents a file to be exported from a Git repository.
    *
@@ -23,13 +27,13 @@ export namespace InteropRequests {
     branch: string;
     filePath: string;
   }
-  
+
   export interface GitHasFile {
     rootDirectory: string;
     branch: string;
     filePath: string;
   }
-  
+
   export class Validator {
     static isExecCommand(body: ExecCommand | unknown): body is ExecCommand {
       const valid = body as ExecCommand;
@@ -50,6 +54,10 @@ export namespace InteropRequests {
     static isGitHasFile(body: GitHasFile | unknown): body is GitHasFile {
       const valid = body as GitExportFile;
       return Boolean(valid.rootDirectory) && Boolean(valid.branch) && Boolean(valid.filePath);
+    }
+    static isBashScript(body: BashScript | unknown): body is BashScript {
+      const valid = body as BashScript;
+      return Boolean(valid.cwd) && valid.args !== undefined
     }
   }
 }

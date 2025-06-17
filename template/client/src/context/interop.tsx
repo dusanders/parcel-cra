@@ -8,6 +8,7 @@ import { ResponseValidator } from "../../../shared/responses/base";
 import { Log } from "./logger/logger";
 
 export interface IInteropContext {
+  bashScript(cwd: string, args: string[]): Promise<void>;
   checkGitFile(cwd: string, branch: string, filePath: string): Promise<boolean>;
   exportGitFile(cwd: string, branch: string, filePath: string): Promise<void>;
   searchGitBranches(cwd: string, pattern: string): Promise<InteropResponses.GitSearchBranches>;
@@ -92,8 +93,20 @@ export function InteropContext(props: InteropContextProps) {
     return response;
   }
 
+  const runBashScript = async (cwd: string, args: string[]) => {
+    const request: InteropRequests.BashScript = {
+      cwd: cwd,
+      args: args
+    }
+    const response = await ApiService.getInstance()
+      .useJwt(user.user?.jwt || '')
+      .postTo(Api.Interop.bashScript)
+      .withBody<InteropResponses.BashScript>(request);
+  }
+
   return (
     <InteropContext_React.Provider value={{
+      bashScript: (cwd, args) => runBashScript(cwd, args),
       checkGitFile: (cwd, branch, filePath) => checkGitFile(cwd, branch, filePath),
       exportGitFile: (cwd, branch, filePath) => exportGitFile(cwd, branch, filePath),
       searchGitBranches: (cwd, pattern) => searchGitBranches(cwd, pattern),

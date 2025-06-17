@@ -19,6 +19,7 @@ export namespace Api {
     scanDirectory = '/api/interop/scan-directory',
     searchGitBranches = '/api/interop/git/search-branches',
     gitExportFile = '/api/interop/git/export-file',
-    gitHasFile = '/api/interop/git/has-file'
+    gitHasFile = '/api/interop/git/has-file',
+    bashScript = '/api/interop/bash/base'
   }
 }

@@ -47,6 +47,16 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
         this.checkForFile(req.body, res)
       }
     )
+    app.post(Api.Interop.bashScript,
+      (req, res, next) => { this.validateForRoute(req, res, next) },
+      async (req, res) => {
+        this.testScript();
+        const bashResult: InteropResponses.BashScript = {
+          output: 'output DEBUG'
+        }
+        this.sendResponse(res, bashResult);
+      }
+    )
     return app;
   }
 
@@ -83,6 +93,12 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
         break;
       case Api.Interop.gitHasFile:
         if (InteropRequests.Validator.isGitHasFile(req.body)) {
+          next();
+          return;
+        }
+        break;
+      case Api.Interop.bashScript:
+        if (InteropRequests.Validator.isBashScript(req.body)) {
           next();
           return;
         }
@@ -168,7 +184,6 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
       Log.e(this.tag, `Error scanning directory: ${result.error}`);
       return { files: [], scanDirectory: toScanDirectory };
     }
-    Log.i(this.tag, `Scanned directory: ${this.getBaseDirectory()} with result: ${result.stdout}`);
     const files = result.stdout.split('\n').filter(file => file.trim() !== '');
     return { files: files, scanDirectory: toScanDirectory };
   }
@@ -186,7 +201,6 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
       Log.e(this.tag, `Error searching git branches: ${result.error}`);
       return { branches: [], originUrl: '' };
     }
-    Log.i(this.tag, `Searched git branches in ${model.rootDirectory} with result: ${result.stdout}`);
     const branches = result.stdout
       .replace('*', '')
       .trim()
