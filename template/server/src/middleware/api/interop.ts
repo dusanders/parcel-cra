@@ -9,6 +9,7 @@ import { ProcessService } from "../../services/process/process";
 import * as Path from "path";
 import * as NodePTY from 'node-pty';
 import { IConfigureInterops } from "../../services/config/config.def";
+import { Firebase } from "../../thirdParty/firebase";
 
 export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
   private tag = 'InteropMiddleware';
@@ -17,6 +18,7 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
     super();
     this.config = config;
     this.testScript();
+    this.searchFirebaseProjects();
   }
 
   listenForRoutes(app: Application): Application {
@@ -55,6 +57,12 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
           output: 'output DEBUG'
         }
         this.sendResponse(res, bashResult);
+      }
+    )
+    app.post(Api.Interop.firebaseFindApp,
+      (req, res, next) => { this.validateForRoute(req, res, next) },
+      async (req, res) => {
+        this.sendResponse(res, await this.searchFirebaseProjects());
       }
     )
     return app;
@@ -99,6 +107,12 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
         break;
       case Api.Interop.bashScript:
         if (InteropRequests.Validator.isBashScript(req.body)) {
+          next();
+          return;
+        }
+        break;
+      case Api.Interop.firebaseFindApp:
+        if (InteropRequests.Validator.isFirebaseFindApp(req.body)) {
           next();
           return;
         }
@@ -168,6 +182,24 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
         console.log(`output: ${data}`);
       }
     });
+  }
+
+  private async searchFirebaseProjects(): Promise<InteropResponses.FirebaseListProjects> {
+    const firebasePath = Path.resolve(this.getScriptsDirectory());
+    const firebaseCommand = `./firebase projects:list --json`;
+    const result = await ProcessService.getInstance(this.config.tmpFileDir)
+      .runCommand(firebaseCommand, firebasePath);
+    if (result.error) {
+      Log.e(this.tag, `Error searching firebase projects: ${result.error}`);
+      return { projects: [] };
+    }
+    try {
+      const parsed = JSON.parse(result.stdout) as Firebase.ProjectListResponse;
+      return { projects: parsed.result || [] };
+    } catch (e) {
+      Log.e(this.tag, `Error parsing firebase projects: ${e}`);
+      return { projects: [] };
+    }
   }
 
   /**

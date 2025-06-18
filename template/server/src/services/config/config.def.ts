@@ -5,6 +5,8 @@ import * as fs from 'fs-extra';
  */
 export interface IConfigureInterops {
   tmpFileDir: string;
+  firebaseApiKey: string;
+  oneSignalApiKey: string;
 }
 
 /**

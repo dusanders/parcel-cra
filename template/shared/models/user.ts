@@ -6,3 +6,8 @@ export interface User {
   jwt: string;
   theme?: string;
 }
+
+export interface FirebaseProject {
+  projectId: string;
+  displayName: string;
+}

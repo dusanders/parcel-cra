@@ -20,6 +20,7 @@ export namespace Api {
     searchGitBranches = '/api/interop/git/search-branches',
     gitExportFile = '/api/interop/git/export-file',
     gitHasFile = '/api/interop/git/has-file',
-    bashScript = '/api/interop/bash/base'
+    bashScript = '/api/interop/bash/base',
+    firebaseFindApp = '/api/interop/firebase/find-app'
   }
 }

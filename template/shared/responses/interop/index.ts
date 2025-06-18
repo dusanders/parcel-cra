@@ -1,3 +1,4 @@
+import { FirebaseProject } from "../../models/user";
 
 export namespace InteropResponses {
   export interface ScanDirectory {
@@ -9,10 +10,13 @@ export namespace InteropResponses {
     branches: string[];
   }
   export interface GitExportFile {
-    
+
   }
   export interface BashScript {
     output: string;
+  }
+  export interface FirebaseListProjects {
+    projects: FirebaseProject[];
   }
   export interface ExecCommand {
     error: string | undefined;

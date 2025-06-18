@@ -34,6 +34,10 @@ export namespace InteropRequests {
     filePath: string;
   }
 
+  export interface FirebaseFindApp {
+    pattern: string;
+  }
+
   export class Validator {
     static isExecCommand(body: ExecCommand | unknown): body is ExecCommand {
       const valid = body as ExecCommand;
@@ -58,6 +62,10 @@ export namespace InteropRequests {
     static isBashScript(body: BashScript | unknown): body is BashScript {
       const valid = body as BashScript;
       return Boolean(valid.cwd) && valid.args !== undefined
+    }
+    static isFirebaseFindApp(body: FirebaseFindApp | unknown): body is FirebaseFindApp {
+      const valid = body as FirebaseFindApp;
+      return Boolean(valid.pattern);
     }
   }
 }
