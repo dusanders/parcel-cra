@@ -226,7 +226,7 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
    * @returns 
    */
   private async gitSearchBranches(model: InteropRequests.GitSearchBranches): Promise<InteropResponses.GitSearchBranches> {
-    const gitCommand = `git branch --list -a ${model.pattern}`;
+    const gitCommand = `git branch --list -a "origin/${model.pattern}"`;
     const result = await ProcessService.getInstance(this.config.tmpFileDir)
       .runCommand(gitCommand, model.rootDirectory);
     if (result.error) {
