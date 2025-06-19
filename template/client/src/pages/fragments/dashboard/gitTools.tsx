@@ -38,8 +38,8 @@ export function GitTools(props: GitToolsProps) {
 
   const checkFile = async () => {
     if (Boolean(selectedBranch)) {
-      const isAvailable = await apiContext.checkGitFile(project, selectedBranch, 'package.json');
-      setIsFileAvailable(isAvailable);
+      const isAvailable = await apiContext.checkGitFile(project, selectedBranch, 'server/package.json');
+      setIsFileAvailable(isAvailable.length > 0);
     }
   }
 
@@ -75,7 +75,7 @@ export function GitTools(props: GitToolsProps) {
                     setBranchFilter('');
                     return;
                   }
-                  setBranchFilter(ev.target.value + '*');
+                  setBranchFilter(ev.target.value);
                 }} />
             </Form.Item>
           </Form>

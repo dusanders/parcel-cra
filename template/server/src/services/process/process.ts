@@ -2,26 +2,7 @@ import { exec } from "node:child_process";
 import * as Path from "path";
 import * as FS from 'fs-extra';
 import { Log } from "../logger/logger";
-
-export enum GitFileModes {
-  normal = '100644',
-  executable = '100755',
-  symLink = '120000'
-}
-
-export enum GitFileType {
-  blob = 'blob',
-  commit = 'commit',
-  tree = 'tree'
-}
-
-export interface GitTreeItem {
-  fileMode: GitFileModes,
-  type: GitFileType,
-  hashName: string,
-  size: number,
-  path: string
-}
+import { GitTreeItem, GitFileModes, GitFileType } from "../../../../shared/models/user";
 
 export class ProcessService implements IProcessService {
   private static instance: ProcessService;

@@ -1,4 +1,4 @@
-import { FirebaseProject } from "../../models/user";
+import { FirebaseProject, GitTreeItem } from "../../models/user";
 
 export namespace InteropResponses {
   export interface ScanDirectory {
@@ -11,6 +11,9 @@ export namespace InteropResponses {
   }
   export interface GitExportFile {
 
+  }
+  export interface GitHasFile {
+    files: GitTreeItem[];
   }
   export interface BashScript {
     output: string;

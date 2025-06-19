@@ -6,10 +6,11 @@ import { InteropRequests } from "../../../shared/requests/interop";
 import { InteropResponses } from "../../../shared/responses/interop";
 import { ResponseValidator } from "../../../shared/responses/base";
 import { Log } from "./logger/logger";
+import { GitTreeItem } from "../../../shared/models/user";
 
 export interface IInteropContext {
   bashScript(cwd: string, args: string[]): Promise<void>;
-  checkGitFile(cwd: string, branch: string, filePath: string): Promise<boolean>;
+  checkGitFile(cwd: string, branch: string, filePath: string): Promise<GitTreeItem[]>;
   exportGitFile(cwd: string, branch: string, filePath: string): Promise<void>;
   searchGitBranches(cwd: string, pattern: string): Promise<InteropResponses.GitSearchBranches>;
   searchDirectory(directory: string): Promise<InteropResponses.ScanDirectory>;
@@ -33,12 +34,12 @@ export function InteropContext(props: InteropContextProps) {
     const response = await ApiService.getInstance()
       .useJwt(user.user?.jwt || '')
       .postTo(Api.Interop.gitHasFile)
-      .withBody(request);
+      .withBody<InteropResponses.GitHasFile>(request);
     if (ResponseValidator.isError(response)) {
       Log.warn(tag, `Error checking git file: ${response.message}`);
-      return false;
+      return [];
     }
-    return true;
+    return response.files;
   }
 
   const exportGitFile = async (cwd: string, branch: string, filePath: string): Promise<void> => {

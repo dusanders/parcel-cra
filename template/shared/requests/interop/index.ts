@@ -18,19 +18,36 @@ export namespace InteropRequests {
   /**
    * Represents a file to be exported from a Git repository.
    *
-   * @property rootDirectory - The root directory of the Git repository.
-   * @property branch - The name of the branch from which the file is exported.
-   * @property filePath - The path to the file within the repository.
    */
   export interface GitExportFile {
+    /**
+     * The root directory of the Git repository.
+     */
     rootDirectory: string;
+    /**
+     * The branch from which to export the file.
+     */
     branch: string;
+    /**
+     * The path of the file to export from the Git repository.
+     */
     filePath: string;
   }
-
+  /**
+   * Represents a request to check if a file exists in a Git repository.
+   */
   export interface GitHasFile {
+    /**
+     * The root directory of the Git repository.
+     */
     rootDirectory: string;
+    /**
+     * The branch in which to check for the file's existence.
+     */
     branch: string;
+    /**
+     * The path of the file to check for existence in the Git repository.
+     */
     filePath: string;
   }
 

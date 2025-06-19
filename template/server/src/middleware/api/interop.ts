@@ -130,12 +130,17 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
     const filename = Path.basename(model.filePath);
     const result = await ProcessService.getInstance(this.config.tmpFileDir)
       .checkGitForFile(model.rootDirectory, model.branch, model.filePath);
-    if (result.find((item) => item.path === filename)) {
-      res.status(200);
-      res.end();
+    if(result.length > 0) {
+      const response: InteropResponses.GitHasFile = {
+        files: result.filter((item) => item.path && item.path.includes(filename)),
+      };
+      this.sendResponse(res, response);
     } else {
-      res.status(406);
-      res.end();
+      this.sendError(res, {
+        httpStatus: 404,
+        message: `File ${filename} not found in branch ${model.branch}`,
+        internalCode: 9404
+      });
     }
   }
 
@@ -226,7 +231,7 @@ export class InteropMiddleware extends BaseApiHandler implements IHandleApi {
    * @returns 
    */
   private async gitSearchBranches(model: InteropRequests.GitSearchBranches): Promise<InteropResponses.GitSearchBranches> {
-    const gitCommand = `git branch --list -a "origin/${model.pattern}"`;
+    const gitCommand = `git branch --list -a "origin/${model.pattern}*"`;
     const result = await ProcessService.getInstance(this.config.tmpFileDir)
       .runCommand(gitCommand, model.rootDirectory);
     if (result.error) {
